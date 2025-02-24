@@ -44,17 +44,24 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation ("com.firebaseui:firebase-ui-auth:7.2.0")
+    implementation("com.google.firebase:firebase-auth-ktx:23.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
 
     implementation("androidx.room:room-runtime:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     implementation("com.google.dagger:hilt-android:2.51.1")
     ksp("com.google.dagger:hilt-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.2.0")
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
     implementation("androidx.navigation:navigation-compose:2.8.7")
 

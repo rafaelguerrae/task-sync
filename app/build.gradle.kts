@@ -48,6 +48,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:23.2.0")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     implementation("androidx.room:room-runtime:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")

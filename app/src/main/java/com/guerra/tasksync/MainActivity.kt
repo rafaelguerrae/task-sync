@@ -8,14 +8,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.auth.api.identity.Identity
 import com.guerra.tasksync.ui.theme.TaskSyncTheme
 import kotlinx.coroutines.launch
@@ -45,18 +52,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TaskSyncTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+                val systemUiController = rememberSystemUiController()
+                val useDarkIcons = !isSystemInDarkTheme()
+                val statusBarColor = MaterialTheme.colorScheme.surface
+
+                SideEffect {
+                    systemUiController.setStatusBarColor(
+                        color = statusBarColor,
+                        darkIcons = useDarkIcons
+                    )
+                }
+
+                Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "sign_in") {
+
+                    val startDestination = if (googleAuthUiClient.getSignedInUser() != null) "home" else "sign_in"
+
+                    NavHost(navController = navController, startDestination = startDestination) {
                         composable("sign_in") {
                             val viewModel = viewModel<SignInViewModel>()
                             val state by viewModel.state.collectAsStateWithLifecycle()
-
-                            LaunchedEffect(key1 = Unit) {
-                                if(googleAuthUiClient.getSignedInUser() != null) {
-                                    navController.navigate("home")
-                                }
-                            }
 
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult(),
@@ -78,7 +93,11 @@ class MainActivity : ComponentActivity() {
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(applicationContext, "Sign in Successful", Toast.LENGTH_LONG).show()
 
-                                    navController.navigate("home")
+                                    navController.navigate("home") {
+                                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+
                                     viewModel.resetState()
                                 }
                             }
@@ -107,7 +126,10 @@ class MainActivity : ComponentActivity() {
                                             Toast.LENGTH_LONG
                                         ).show()
 
-                                        navController.popBackStack()
+                                        navController.navigate("sign_in") {
+                                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             )

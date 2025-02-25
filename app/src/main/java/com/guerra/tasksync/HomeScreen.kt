@@ -1,12 +1,16 @@
 package com.guerra.tasksync
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,41 +28,58 @@ import coil.compose.AsyncImage
 fun HomeScreen(
     userData: UserData?,
     onSignOut: () -> Unit
-){
-    Column (
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    )
-    {
-        if(userData?.profilePictureUrl != null){
-            AsyncImage(
-                model = userData.profilePictureUrl,
-                contentDescription = "My profile picture",
-                modifier = Modifier.size(100.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (userData?.profilePictureUrl != null) {
+                AsyncImage(
+                    model = userData.profilePictureUrl,
+                    contentDescription = "My profile picture",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            if (userData?.username != null) {
+                Text(
+                    text = "Welcome, ${userData.username.split(" ").firstOrNull()}!",
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
 
-        if(userData?.username != null){
-            Text(
-                text = userData.username,
-                textAlign = TextAlign.Center,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-        }
-
-        Button(onClick = onSignOut){
-            Text(text = "Sign out")
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = onSignOut,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "Sign out",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
         }
     }
-
 }

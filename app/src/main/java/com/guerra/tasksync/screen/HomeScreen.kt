@@ -1,8 +1,9 @@
-package com.guerra.tasksync
+package com.guerra.tasksync.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,11 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.guerra.tasksync.R
+import com.guerra.tasksync.data.UserData
 
 @Composable
 fun HomeScreen(
@@ -50,12 +54,32 @@ fun HomeScreen(
             }
 
             if (userData?.username != null) {
-                Text(
-                    text = "Welcome, ${userData.username.split(" ").firstOrNull()}!",
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "Welcome,",
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.size(4.dp))
+
+                    Text(
+                        text = "${userData.username.split(" ").firstOrNull()}!",
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(R.color.blue)
+                    )
+
+
+                }
+
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

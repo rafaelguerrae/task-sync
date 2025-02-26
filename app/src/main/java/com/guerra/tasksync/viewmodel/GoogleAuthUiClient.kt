@@ -1,4 +1,4 @@
-package com.guerra.tasksync
+package com.guerra.tasksync.viewmodel
 
 import android.content.Context
 import android.content.Intent
@@ -9,6 +9,9 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.guerra.tasksync.R
+import com.guerra.tasksync.data.SignInResult
+import com.guerra.tasksync.data.UserData
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -51,7 +54,7 @@ class GoogleAuthUiClient(
         )
     }
 
-    suspend fun signInWithIntent(intent: Intent): SignInResult{
+    suspend fun signInWithIntent(intent: Intent): SignInResult {
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
         val googleIdToken = credential.googleIdToken
         val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken,null)

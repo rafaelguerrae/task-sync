@@ -3,6 +3,7 @@ package com.guerra.tasksync.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Blue = Color(0xFF0066FF)
+val LightBlue = Color(0xFF4F97FF)
 val Grey = Color(0xFF575757)
 
 val LightBackground = Color(0xFFF5F5F5)

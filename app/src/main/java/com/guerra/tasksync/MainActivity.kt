@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
                     val navController = rememberNavController()
-                    val startDestination = if (googleAuthUiClient.getSignedInUser() != null) "home" else "sign_in"
+                    val startDestination = if (googleAuthUiClient.getSignedInUser() != null) "main" else "initial"
                     val viewModel = viewModel<SignInViewModel>()
 
                     NavigationGraph(

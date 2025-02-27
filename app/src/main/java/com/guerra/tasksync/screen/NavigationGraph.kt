@@ -30,7 +30,7 @@ fun NavigationGraph(
 
     NavHost(navController = navController, startDestination = startDestination) {
 
-        composable(Screen.SignInScreen.route) {
+        composable(Screen.InitialScreen.route) {
             val state by viewModel.state.collectAsStateWithLifecycle()
 
             val launcher = rememberLauncherForActivityResult(
@@ -55,14 +55,14 @@ fun NavigationGraph(
 
                     viewModel.resetState()
 
-                    navController.navigate("home") {
+                    navController.navigate("main") {
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
             }
 
-            SignInScreen(state = state, viewModel = viewModel, onSignInClick = {
+            InitialScreen(state = state, viewModel = viewModel, onSignInClick = {
                 coroutineScope.launch {
                     val signInIntentSender = googleAuthUiClient.signIn()
                     launcher.launch(
@@ -74,8 +74,8 @@ fun NavigationGraph(
             })
         }
 
-        composable(Screen.HomeScreen.route) {
-            HomeScreen(
+        composable(Screen.MainScreen.route) {
+            MainScreen(
                 userData = googleAuthUiClient.getSignedInUser(),
                 onSignOut = {
                     coroutineScope.launch {
@@ -86,7 +86,7 @@ fun NavigationGraph(
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        navController.navigate("sign_in") {
+                        navController.navigate("initial") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
                         }
@@ -94,6 +94,15 @@ fun NavigationGraph(
                 }
             )
         }
+
+        composable(Screen.HomeScreen.route){}
+        composable(Screen.TeamsScreen.route){}
+        composable(Screen.NotificationsScreen.route){}
+        composable(Screen.SettingsScreen.route){}
+
+
+        composable(Screen.SignUpScreen.route){}
+        composable(Screen.SignInScreen.route){}
     }
 
 }

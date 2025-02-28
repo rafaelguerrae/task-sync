@@ -1,5 +1,9 @@
 package com.guerra.tasksync.screen
 
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -53,10 +57,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.UserData
+import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
+import com.guerra.tasksync.viewmodel.SignInViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 data class BottomNavigationItem(
     val title: String,
@@ -69,92 +83,49 @@ data class BottomNavigationItem(
 
 @Composable
 fun MainScreen(
-    userData: UserData?,
-    onSignOut: () -> Unit
+    context: Context,
+    navController: NavHostController,
+    googleAuthUiClient: GoogleAuthUiClient,
+    coroutineScope: CoroutineScope
 ) {
+    val bottomNavController = rememberNavController()
+
     val isDarkTheme = isSystemInDarkTheme()
-
-
 
     Scaffold(
         topBar = { TopBar(isDarkTheme) },
-        bottomBar = { BottomNavigationBar(isDarkTheme) }
+        bottomBar = { BottomNavigationBar(isDarkTheme, bottomNavController) }
     ) { padding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                if (userData?.profilePictureUrl != null) {
-                    AsyncImage(
-                        model = userData.profilePictureUrl,
-                        contentDescription = "My profile picture",
-                        modifier = Modifier
-                            .size(70.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
 
-                if (userData?.username != null) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Welcome,",
-                            textAlign = TextAlign.Center,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+        NavHost(
+            modifier = Modifier.padding(padding),
+            navController = bottomNavController, startDestination = Screen.HomeScreen.route
+        ) {
+            composable(Screen.HomeScreen.route) {
+                HomeScreen(
+                    userData = googleAuthUiClient.getSignedInUser(),
+                    onSignOut = {
+                        coroutineScope.launch {
+                            googleAuthUiClient.signOut()
+                            Toast.makeText(
+                                context,
+                                "Signed out",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-                        Spacer(modifier = Modifier.size(4.dp))
-
-                        Text(
-                            text = "${userData.username.split(" ").firstOrNull()}!",
-                            textAlign = TextAlign.Center,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colorResource(R.color.blue)
-                        )
-
-
+                            navController.navigate("initial") {
+                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
                     }
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                )
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onSignOut,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Sign out",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-            }
+            composable(Screen.TeamsScreen.route) { TeamsScreen() }
+            composable(Screen.NotificationsScreen.route) { NotificationsScreen() }
+            composable(Screen.SettingsScreen.route) { SettingsScreen() }
         }
+
     }
 }
 
@@ -162,7 +133,8 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(isDarkTheme: Boolean) {
-    val logoResId = if (isDarkTheme)  R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
+    val logoResId =
+        if (isDarkTheme) R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
     TopAppBar(
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -183,12 +155,13 @@ fun TopBar(isDarkTheme: Boolean) {
                         .size(45.dp)
                         .align(Alignment.Center)
                 )
-            }}
+            }
+        }
     )
 }
 
 @Composable
-fun BottomNavigationBar(isDarkTheme: Boolean){
+fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostController) {
     val items by remember {
         mutableStateOf(
             listOf(
@@ -238,14 +211,20 @@ fun BottomNavigationBar(isDarkTheme: Boolean){
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent,
                     selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = if(isDarkTheme) Color.White else Color.Black,
+                    unselectedIconColor = if (isDarkTheme) Color.White else Color.Black,
                     selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = if(isDarkTheme) Color.White else Color.Black
+                    unselectedTextColor = if (isDarkTheme) Color.White else Color.Black
                 ),
                 selected = selectedItemIndex == index,
                 onClick = {
                     selectedItemIndex = index
-                    //TODO navController.navigate
+                    bottomNavController.navigate(item.route){
+                        popUpTo(bottomNavController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 label = {
                     Text(text = item.title)

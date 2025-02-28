@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,7 @@ fun HomeScreen(
             if (userData?.profilePictureUrl != null) {
                 AsyncImage(
                     model = userData.profilePictureUrl,
-                    contentDescription = "My profile picture",
+                    contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(70.dp)
                         .clip(CircleShape),
@@ -61,7 +62,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Welcome,",
+                        text = stringResource(R.string.welcome) + ",",
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -99,7 +100,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Sign out",
+                    text = stringResource(R.string.sign_out),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(vertical = 8.dp)

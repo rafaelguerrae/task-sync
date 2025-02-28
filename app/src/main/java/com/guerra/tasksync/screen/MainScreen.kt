@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -162,41 +163,37 @@ fun TopBar(isDarkTheme: Boolean) {
 
 @Composable
 fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostController) {
-    val items by remember {
-        mutableStateOf(
-            listOf(
-                BottomNavigationItem(
-                    title = "Home",
-                    route = Screen.HomeScreen.route,
-                    selectedItem = Icons.Default.Home,
-                    unselectedItem = Icons.Outlined.Home,
-                    hasNews = false
-                ),
-                BottomNavigationItem(
-                    title = "Teams",
-                    route = Screen.TeamsScreen.route,
-                    selectedItem = Icons.Default.Person,
-                    unselectedItem = Icons.Outlined.Person,
-                    hasNews = true
-                ),
-                BottomNavigationItem(
-                    title = "Notifications",
-                    route = Screen.NotificationsScreen.route,
-                    selectedItem = Icons.Default.Notifications,
-                    unselectedItem = Icons.Outlined.Notifications,
-                    hasNews = false,
-                    badgeCount = 4
-                ),
-                BottomNavigationItem(
-                    title = "Settings",
-                    route = Screen.SettingsScreen.route,
-                    selectedItem = Icons.Default.Settings,
-                    unselectedItem = Icons.Outlined.Settings,
-                    hasNews = false
-                )
-            )
+    val items = listOf(
+        BottomNavigationItem(
+            title = stringResource(R.string.home),
+            route = Screen.HomeScreen.route,
+            selectedItem = Icons.Default.Home,
+            unselectedItem = Icons.Outlined.Home,
+            hasNews = false
+        ),
+        BottomNavigationItem(
+            title = stringResource(R.string.teams),
+            route = Screen.TeamsScreen.route,
+            selectedItem = Icons.Default.Person,
+            unselectedItem = Icons.Outlined.Person,
+            hasNews = true
+        ),
+        BottomNavigationItem(
+            title = stringResource(R.string.notifications),
+            route = Screen.NotificationsScreen.route,
+            selectedItem = Icons.Default.Notifications,
+            unselectedItem = Icons.Outlined.Notifications,
+            hasNews = false,
+            badgeCount = 4
+        ),
+        BottomNavigationItem(
+            title = stringResource(R.string.settings),
+            route = Screen.SettingsScreen.route,
+            selectedItem = Icons.Default.Settings,
+            unselectedItem = Icons.Outlined.Settings,
+            hasNews = false
         )
-    }
+    )
 
     var selectedItemIndex by rememberSaveable {
         mutableStateOf(0)

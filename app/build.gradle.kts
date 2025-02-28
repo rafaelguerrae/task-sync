@@ -51,6 +51,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation(libs.androidx.appcompat)
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("io.coil-kt:coil-compose:2.2.2")

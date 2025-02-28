@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,7 +66,7 @@ fun InitialScreen(
     ) {
         Image(
             painter = rememberAsyncImagePainter(logoResId),
-            contentDescription = "TaskSync Logo",
+            contentDescription = stringResource(R.string.app_name),
             modifier = Modifier
                 .size(200.dp)
                 .align(Alignment.Center)
@@ -105,7 +106,7 @@ fun InitialScreen(
                     Spacer(modifier = Modifier.size(8.dp))
 
                     Text(
-                        text = if (isLoading) "Signing in..." else "Sign in using Google",
+                        text = if (isLoading) stringResource(R.string.signing_in) else stringResource(R.string.enter_using_google),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -124,7 +125,7 @@ fun InitialScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Sign in with my credentials",
+                    text = stringResource(R.string.sign_in_with_my_credentials),
                     fontWeight = FontWeight.Normal,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -140,13 +141,13 @@ fun InitialScreen(
             ) {
 
                 Text(
-                    text = "Don't have an account?",
+                    text = stringResource(R.string.dont_have_account),
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.size(4.dp))
 
                 Text(
-                    text = "Sign up",
+                    text = stringResource(R.string.sign_up),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = colorResource(R.color.blue),

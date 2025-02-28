@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">TaskSync</string>
+    <string name="web_client_id">77896509526-ciukmaiek70m80ad847maoes5sbjegsr.apps.googleusercontent.com</string>
+
+    <string name="dont_have_account">Não tem uma conta?</string>
+    <string name="sign_up">Cadastre-se</string>
+
+    <string name="signing_in">Entrando...</string>
+    <string name="sign_out">Sair</string>
+    <string name="enter_using_google">Entrar com o Google</string>
+    <string name="sign_in_with_my_credentials">Entrar com minhas credenciais</string>
+
+    <string name="welcome">Bem-vindo</string>
+
+    <string name="home">Início</string>
+    <string name="teams">Equipes</string>
+    <string name="notifications">Notificações</string>
+    <string name="settings">Configurações</string>
+</resources>

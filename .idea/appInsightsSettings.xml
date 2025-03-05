@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.guerra.tasksync" />
-                  <option name="mobileSdkAppId" value="1:77896509526:android:d659257be95e2fc9f073f7" />
-                  <option name="projectId" value="task-sync-90852" />
-                  <option name="projectNumber" value="77896509526" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -5,7 +5,6 @@ TaskSync is a collaborative task management app for Android that allows users to
 ## Table of Contents
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
 
 ## Features
 - **User Authentication:** Secure login and registration using Firebase Authentication (Email/Password, Google Sign-In).

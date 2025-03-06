@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -31,13 +32,17 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,11 +75,11 @@ fun MainScreen(
     coroutineScope: CoroutineScope
 ) {
     val bottomNavController = rememberNavController()
-
     val isDarkTheme = isSystemInDarkTheme()
+    var screenName by remember{ mutableStateOf("")}
 
     Scaffold(
-        topBar = { TopBar(isDarkTheme) },
+        topBar = { TopBar(screenName) },
         bottomBar = { BottomNavigationBar(isDarkTheme, bottomNavController) }
     ) { padding ->
 
@@ -83,13 +88,23 @@ fun MainScreen(
             navController = bottomNavController, startDestination = Screen.HomeScreen.route
         ) {
             composable(Screen.HomeScreen.route) {
+                screenName = stringResource(R.string.app_name)
                 HomeScreen(
                     userData = googleAuthUiClient.getSignedInUser()
                 )
             }
-            composable(Screen.TeamsScreen.route) { TeamsScreen() }
-            composable(Screen.NotificationsScreen.route) { NotificationsScreen() }
-            composable(Screen.SettingsScreen.route) { SettingsScreen(
+            composable(Screen.TeamsScreen.route) {
+                screenName = stringResource(R.string.teams)
+                TeamsScreen()
+            }
+            composable(Screen.NotificationsScreen.route) {
+                screenName = stringResource(R.string.notifications)
+                NotificationsScreen()
+            }
+
+            composable(Screen.SettingsScreen.route) {
+                screenName = stringResource(R.string.settings)
+                SettingsScreen(
                 userData = googleAuthUiClient.getSignedInUser(),
                 onSignOut = {
                     coroutineScope.launch {
@@ -106,33 +121,24 @@ fun MainScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(isDarkTheme: Boolean) {
-    val logoResId =
-        if (isDarkTheme) R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
+fun TopBar(screenName: String){
     TopAppBar(
         colors = TopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface,
-            navigationIconContentColor = MaterialTheme.colorScheme.surface,
-            actionIconContentColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.background,
+            scrolledContainerColor = MaterialTheme.colorScheme.background,
+            navigationIconContentColor = MaterialTheme.colorScheme.background,
+            actionIconContentColor = MaterialTheme.colorScheme.background
         ),
         title = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(logoResId),
-                    contentDescription = "TaskSync Logo",
-                    modifier = Modifier
-                        .size(45.dp)
-                        .align(Alignment.Center)
-                )
-            }
+            Text(
+                text = screenName,
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
         }
     )
 }
@@ -176,7 +182,7 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
     }
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         tonalElevation = 0.dp
     ) {
         items.forEachIndexed { index, item ->

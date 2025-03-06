@@ -6,8 +6,23 @@
     <string name="sign_up">Regístrate</string>
 
     <string name="signing_in">Iniciando sesión...</string>
+    <string name="signing_up">Registrando...</string>
+
+    <string name="next_step">Siguiente paso</string>
+    <string name="type_full_name">Escribe tu nombre completo</string>
+    <string name="type_email">Escribe tu correo electrónico</string>
+    <string name="create_password">Crea tu contraseña</string>
+    <string name="password">Contraseña</string>
+    <string name="email">nombre@mail.com</string>
+    <string name="fullname">Nombre completo</string>
+
+    <string name="unknown_step">Paso desconocido</string>
+
+    <string name="show_password">Mostrar contraseña</string>
+    <string name="hide_password">Ocultar contraseña</string>
+
     <string name="sign_out">Cerrar sesión</string>
-    <string name="enter_using_google">Ingresar con Google</string>
+    <string name="enter_using_google">Entrar con Google</string>
     <string name="sign_in_with_my_credentials">Iniciar sesión con mis credenciales</string>
 
     <string name="welcome">Bienvenido</string>
@@ -15,5 +30,19 @@
     <string name="home">Inicio</string>
     <string name="teams">Equipos</string>
     <string name="notifications">Notificaciones</string>
-    <string name="settings">Configuraciones</string>
+    <string name="settings">Configuración</string>
+    <string name="theme">Tema</string>
+    <string name="theme_description">Configuraciónes del dispositivo</string>
+    <string name="delete_my_data">Eliminar mis datos</string>
+    <string name="delete_my_data_description">Elimina tus datos del servidor</string>
+    <string name="language">Idioma</string>
+    <string name="language_description">Español</string>
+    <string name="info">Información</string>
+    <string name="info_description">Mira toda la información sobre la app</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="portuguese">Portugués</string>
+    <string name="spanish">Español</string>
+    <string name="english">Inglés</string>
+    <string name="select_language">Seleccione el idioma</string>
+    <string name="sign_out_message">¿Estás seguro de que quieres cerrar sesión?</string>
 </resources>

@@ -70,7 +70,6 @@ fun SignUpScreen(
             },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(12.dp)
                 .size(35.dp)
         ) {
             Icon(
@@ -160,6 +159,7 @@ fun SignUpFullNameStep(
         TextField(
             value = fullName,
             onValueChange = onFullNameChange,
+            modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.fullname)) }
         )
     }

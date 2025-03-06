@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -67,7 +68,6 @@ fun SignInScreen(
             },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(12.dp)
                 .size(35.dp)
         ) {
             Icon(
@@ -85,7 +85,7 @@ fun SignInScreen(
             when (step) {
                 1 -> SignInEmailStep(email = email, onEmailChange = { email = it })
                 2 -> SignInPasswordStep(password = password, onPasswordChange = { password = it })
-                else -> Text("Unknown step")
+                else -> Text(stringResource(R.string.unknown_step))
             }
         }
 
@@ -123,7 +123,7 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text = if (step < maxSteps) "Next" else if(!isLoading)"Sign in" else "Signing in",
+                    text = if (step < maxSteps) "Next" else if(!isLoading)stringResource(R.string.signing_in) else stringResource(R.string.signing_in),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -142,7 +142,7 @@ fun SignInEmailStep(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Type your E-mail"
+            text = stringResource(R.string.type_email)
         )
 
         Spacer(modifier = Modifier.size(16.dp))
@@ -151,7 +151,7 @@ fun SignInEmailStep(
             value = email,
             onValueChange = onEmailChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("name@mail.com") }
+            placeholder = { Text(stringResource(R.string.email)) }
         )
     }
 }
@@ -168,7 +168,7 @@ fun SignInPasswordStep(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Now type your Password"
+            text = stringResource(R.string.type_password)
         )
 
         Spacer(modifier = Modifier.size(16.dp))
@@ -177,13 +177,13 @@ fun SignInPasswordStep(
             value = password,
             onValueChange = onPasswordChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Password") },
+            placeholder = { Text(stringResource(R.string.password)) },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                val description = if (passwordVisible) "Hide password" else "Show password"
+                val description = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
 
                 IconButton(onClick = {passwordVisible = !passwordVisible}){
                     Icon(imageVector  = image, description)

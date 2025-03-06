@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -69,7 +68,10 @@ fun NavigationGraph(
                     }
                 }
 
-                InitialScreen(state = state, viewModel = viewModel, onSignInClick = {
+                InitialScreen(
+                    state = state,
+                    viewModel = viewModel,
+                    onGoogleClick = {
                     coroutineScope.launch {
                         val signInIntentSender = googleAuthUiClient.signIn()
                         launcher.launch(
@@ -78,14 +80,28 @@ fun NavigationGraph(
                             ).build()
                         )
                     }
-                })
+                },
+                    onSignInClick = {
+                        navController.navigate(Screen.SignInScreen.route)
+                    },
+                    onSignUpClick = {
+                        navController.navigate(Screen.SignUpScreen.route)
+                    })
             }
 
+            composable(Screen.SignUpScreen.route){
+                SignUpScreen(
+                    onFinish = { navController.popBackStack() },
+                    onSignUpClick = {}
+                )
+            }
 
-            composable(Screen.SignUpScreen.route){}
-            composable(Screen.SignInScreen.route){}
-
-
+            composable(Screen.SignInScreen.route){
+                SignInScreen(
+                    onFinish = { navController.popBackStack() },
+                    onSignInClick = {}
+                )
+            }
         }
 
         navigation(
@@ -100,15 +116,7 @@ fun NavigationGraph(
                     coroutineScope = coroutineScope
                 )
             }
-
-
-
         }
-
-
-
-
-
     }
 
 }

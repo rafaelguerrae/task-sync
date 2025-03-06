@@ -6,6 +6,22 @@
     <string name="sign_up">Sign up</string>
 
     <string name="signing_in">Signing in...</string>
+    <string name="signing_up">Signing up...</string>
+
+    <string name="next_step">Next step</string>
+    <string name="type_full_name">Type your full name</string>
+    <string name="type_email">Type your e-mail</string>
+    <string name="create_password">Create your password</string>
+    <string name="password">Password</string>
+    <string name="email">name@mail.com</string>
+    <string name="fullname">Full Name</string>
+
+    <string name="unknown_step">Unknown step</string>
+
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+
+
     <string name="sign_out">Sign out</string>
     <string name="enter_using_google">Enter using Google</string>
     <string name="sign_in_with_my_credentials">Sign in with my credentials</string>

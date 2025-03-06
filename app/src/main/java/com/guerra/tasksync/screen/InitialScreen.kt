@@ -40,7 +40,9 @@ import com.guerra.tasksync.viewmodel.SignInViewModel
 @Composable
 fun InitialScreen(
     state: SignInState,
+    onGoogleClick: () -> Unit,
     onSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit,
     viewModel: SignInViewModel
 ) {
     var isLoading by remember { mutableStateOf(false) }
@@ -82,7 +84,7 @@ fun InitialScreen(
             Button(
                 onClick = {
                     isLoading = true
-                    onSignInClick()
+                    onGoogleClick()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -116,7 +118,9 @@ fun InitialScreen(
             }
 
             Button(
-                onClick = {},
+                onClick = {
+                    onSignInClick()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -151,7 +155,9 @@ fun InitialScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = colorResource(R.color.blue),
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable {
+                        onSignUpClick()
+                    }
                 )
             }
         }

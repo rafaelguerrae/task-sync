@@ -31,40 +31,26 @@ import com.guerra.tasksync.data.UserData
 
 @Composable
 fun HomeScreen(
-    userData: UserData?,
-    onSignOut: () -> Unit
+    userData: UserData?
 ){
     Box(modifier = Modifier
-        .fillMaxSize()) {
+        .fillMaxSize().padding(16.dp)) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
-            if (userData?.profilePictureUrl != null) {
-                AsyncImage(
-                    model = userData.profilePictureUrl,
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(70.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
 
             if (userData?.username != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.Top
                 ) {
                     Text(
                         text = stringResource(R.string.welcome) + ",",
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
 
@@ -72,39 +58,13 @@ fun HomeScreen(
 
                     Text(
                         text = "${userData.username.split(" ").firstOrNull()}!",
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = colorResource(R.color.blue)
                     )
 
 
                 }
-
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 16.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = onSignOut,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sign_out),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
             }
         }
     }

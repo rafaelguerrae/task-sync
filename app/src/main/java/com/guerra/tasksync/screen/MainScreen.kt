@@ -1,23 +1,12 @@
 package com.guerra.tasksync.screen
 
 import android.content.Context
-import android.widget.Toast
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -29,7 +18,6 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,35 +29,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.guerra.tasksync.R
-import com.guerra.tasksync.data.UserData
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
-import com.guerra.tasksync.viewmodel.SignInViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -104,27 +84,23 @@ fun MainScreen(
         ) {
             composable(Screen.HomeScreen.route) {
                 HomeScreen(
-                    userData = googleAuthUiClient.getSignedInUser(),
-                    onSignOut = {
-                        coroutineScope.launch {
-                            googleAuthUiClient.signOut()
-                            Toast.makeText(
-                                context,
-                                "Signed out",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            navController.navigate("initial") {
-                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                    }
+                    userData = googleAuthUiClient.getSignedInUser()
                 )
             }
             composable(Screen.TeamsScreen.route) { TeamsScreen() }
             composable(Screen.NotificationsScreen.route) { NotificationsScreen() }
-            composable(Screen.SettingsScreen.route) { SettingsScreen() }
+            composable(Screen.SettingsScreen.route) { SettingsScreen(
+                userData = googleAuthUiClient.getSignedInUser(),
+                onSignOut = {
+                    coroutineScope.launch {
+                        googleAuthUiClient.signOut()
+                        navController.navigate("initial") {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            ) }
         }
 
     }
@@ -224,7 +200,14 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
                     }
                 },
                 label = {
-                    Text(text = item.title)
+                    Text(
+                        text = item.title,
+                        fontSize = 10.sp,
+                        textAlign = TextAlign.Center,
+                        minLines = 1,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 },
                 icon = {
                     BadgedBox(

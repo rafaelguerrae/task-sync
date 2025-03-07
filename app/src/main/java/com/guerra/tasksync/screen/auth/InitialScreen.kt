@@ -1,4 +1,4 @@
-package com.guerra.tasksync.screen
+package com.guerra.tasksync.screen.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.SignInState
-import com.guerra.tasksync.viewmodel.SignInViewModel
+import com.guerra.tasksync.viewmodel.AuthViewModel
 
 @Composable
 fun InitialScreen(
@@ -43,7 +43,7 @@ fun InitialScreen(
     onGoogleClick: () -> Unit,
     onSignInClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    viewModel: SignInViewModel
+    viewModel: AuthViewModel
 ) {
     var isLoading by remember { mutableStateOf(false) }
 

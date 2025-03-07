@@ -12,6 +12,7 @@ data class SignInState(
 
 data class UserData(
     val userId: String,
-    val username: String?,
-    val profilePictureUrl: String?
+    val fullName: String?,
+    val profilePictureUrl: String? = null,
+    val email: String? = null
 )

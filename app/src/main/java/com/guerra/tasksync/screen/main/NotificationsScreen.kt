@@ -1,4 +1,4 @@
-package com.guerra.tasksync.screen
+package com.guerra.tasksync.screen.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

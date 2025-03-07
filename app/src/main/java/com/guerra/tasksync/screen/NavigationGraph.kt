@@ -15,14 +15,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.guerra.tasksync.screen.auth.InitialScreen
+import com.guerra.tasksync.screen.auth.SignInScreen
+import com.guerra.tasksync.screen.auth.SignUpScreen
+import com.guerra.tasksync.screen.main.MainScreen
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
-import com.guerra.tasksync.viewmodel.SignInViewModel
+import com.guerra.tasksync.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    viewModel: SignInViewModel,
+    viewModel: AuthViewModel,
     context: Context,
     startDestination: String,
     googleAuthUiClient: GoogleAuthUiClient

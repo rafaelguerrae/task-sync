@@ -1,4 +1,4 @@
-package com.guerra.tasksync.screen
+package com.guerra.tasksync.screen.main
 
 import android.app.Activity
 import android.content.Context
@@ -123,7 +123,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            if (userData?.username != null) {
+            if (userData?.fullName != null) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start,
@@ -131,14 +131,14 @@ fun SettingsScreen(
                 ) {
 
                     Text(
-                        text = "${userData.username}",
+                        text = "${userData.fullName}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
-                        text = stringResource(R.string.email),
+                        text = "${userData.email}",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Italic,
@@ -370,7 +370,7 @@ fun SignOutDialog(
             Button(
                 onClick = onConfirm
             ) {
-                Text("Yes")
+                Text(stringResource(R.string.yes))
             }
         },
         dismissButton = {
@@ -380,7 +380,7 @@ fun SignOutDialog(
                 disabledContainerColor = MaterialTheme.colorScheme.background,
                 disabledContentColor = MaterialTheme.colorScheme.onSurface
             )) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

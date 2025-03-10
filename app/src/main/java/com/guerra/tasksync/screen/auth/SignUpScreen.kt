@@ -1,7 +1,6 @@
 package com.guerra.tasksync.screen.auth
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,10 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,21 +39,31 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guerra.tasksync.R
+import com.guerra.tasksync.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignUpScreen(
     onFinish: () -> Unit,
-    onSignUpClick: () -> Unit
+    onSignUpClick: (String, String, String) -> Unit,
+    viewModel: AuthViewModel
 ) {
     var step by remember { mutableIntStateOf(1) }
     var fullName by remember { mutableStateOf("") }
@@ -60,9 +71,14 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
 
     var showExitDialog by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-
     val maxSteps = 3
+
+    val isLoading by viewModel.loading.collectAsStateWithLifecycle()
+
+    val focusFullName = remember { FocusRequester() }
+    val focusEmail = remember { FocusRequester() }
+    val focusPassword = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     BackHandler(enabled = true) {
         showExitDialog = true
@@ -72,6 +88,8 @@ fun SignUpScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+            .imePadding()
     ) {
 
         if (showExitDialog) {
@@ -103,14 +121,41 @@ fun SignUpScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             when (step) {
-                1 -> SignUpFullNameStep(fullName = fullName, onFullNameChange = { fullName = it })
-                2 -> SignUpEmailStep(email = email, onEmailChange = { email = it })
-                3 -> SignUpPasswordStep(password = password, onPasswordChange = { password = it }, isLoading = isLoading)
+                1 -> SignUpFullNameStep(
+                    fullName = fullName,
+                    onFullNameChange = { fullName = it },
+                    onNext = {
+                        step++
+                    },
+                    focusRequester = focusFullName
+                )
+
+                2 -> SignUpEmailStep(
+                    email = email,
+                    onEmailChange = { email = it },
+                    onNext = {
+                        step++
+                    },
+                    focusRequester = focusEmail
+                )
+
+                3 -> SignUpPasswordStep(
+                    password = password,
+                    onPasswordChange = { password = it },
+                    isLoading = isLoading,
+                    focusManager = focusManager,
+                    onSignUpClick = {
+                        onSignUpClick(email, password, fullName)
+                    },
+                    focusRequester = focusPassword
+                )
+
                 else -> Text("Unknown step")
             }
         }
@@ -121,8 +166,7 @@ fun SignUpScreen(
                 if (step < maxSteps) {
                     step++
                 } else {
-                    isLoading = true
-                    onSignUpClick()
+                    onSignUpClick(email, password, fullName)
                 }
             },
             modifier = Modifier
@@ -166,6 +210,146 @@ fun SignUpScreen(
 }
 
 @Composable
+fun SignUpFullNameStep(
+    fullName: String,
+    onFullNameChange: (String) -> Unit,
+    onNext: () -> Unit,
+    focusRequester: FocusRequester
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.type_full_name)
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        TextField(
+            value = fullName,
+            onValueChange = onFullNameChange,
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+            placeholder = { Text(stringResource(R.string.fullname)) },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                autoCorrectEnabled = true,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    onNext()
+                }
+            )
+        )
+    }
+}
+
+@Composable
+fun SignUpEmailStep(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    onNext: () -> Unit,
+    focusRequester: FocusRequester
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.type_email)
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        TextField(
+            value = email,
+            onValueChange = onEmailChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            placeholder = { Text(stringResource(R.string.email)) },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    onNext()
+                }
+            )
+        )
+    }
+}
+
+@Composable
+fun SignUpPasswordStep(
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isLoading: Boolean,
+    focusManager: FocusManager,
+    onSignUpClick: () -> Unit,
+    focusRequester: FocusRequester
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.create_password)
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        TextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            enabled = !isLoading,
+            placeholder = { Text(stringResource(R.string.password)) },
+            singleLine = true,
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                    onSignUpClick()
+                }
+            ),
+            trailingIcon = {
+                val image =
+                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            }
+        )
+    }
+}
+
+@Composable
 fun ExitDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
@@ -187,7 +371,7 @@ fun ExitDialog(
         },
         dismissButton = {
             Button(
-                onClick =  onDismiss,
+                onClick = onDismiss,
                 colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -199,93 +383,4 @@ fun ExitDialog(
             }
         }
     )
-}
-
-@Composable
-fun SignUpFullNameStep(
-    fullName: String,
-    onFullNameChange: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.type_full_name)
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        TextField(
-            value = fullName,
-            onValueChange = onFullNameChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.fullname)) }
-        )
-    }
-}
-
-@Composable
-fun SignUpEmailStep(
-    email: String,
-    onEmailChange: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.type_email)
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        TextField(
-            value = email,
-            onValueChange = onEmailChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.email)) }
-        )
-    }
-}
-
-@Composable
-fun SignUpPasswordStep(
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    isLoading: Boolean
-) {
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.create_password)
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        TextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading,
-            placeholder = { Text(stringResource(R.string.password)) },
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            trailingIcon = {
-                val image =
-                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                val description = if (passwordVisible) "Hide password" else "Show password"
-
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description)
-                }
-            }
-        )
-
-        Row() {
-
-        }
-    }
 }

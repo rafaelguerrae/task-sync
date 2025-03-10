@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Visibility
@@ -26,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,10 +38,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,17 +62,20 @@ import kotlinx.coroutines.flow.StateFlow
 fun SignInScreen(
     onFinish: () -> Unit,
     onSignInClick: (String, String) -> Unit,
-    viewModel : AuthViewModel
+    viewModel: AuthViewModel
 ) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
+    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+            .imePadding()
     ) {
 
         IconButton(
@@ -84,12 +96,26 @@ fun SignInScreen(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SignInEmailStep(email = email, onEmailChange = { email = it })
-
-            Spacer(modifier = Modifier.size(16.dp)
+            SignInEmailStep(
+                email = email,
+                onEmailChange = { email = it },
+                focusManager = focusManager,
+                isLoading = isLoading
             )
 
-            SignInPasswordStep(password = password, onPasswordChange = { password = it })
+            Spacer(modifier = Modifier.size(16.dp))
+
+            SignInPasswordStep(
+                password = password,
+                onPasswordChange = { password = it },
+                focusManager = focusManager,
+                isLoading = isLoading,
+                onSignInClick = {
+                    onSignInClick(
+                        email,
+                        password
+                    )
+                })
         }
 
 
@@ -103,7 +129,7 @@ fun SignInScreen(
 
         Button(
             onClick = {
-                    onSignInClick(email, password)
+                onSignInClick(email, password)
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -129,7 +155,7 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text =if (!isLoading) stringResource(R.string.sign_in) else stringResource(
+                    text = if (!isLoading) stringResource(R.string.sign_in) else stringResource(
                         R.string.signing_in
                     ),
                     fontWeight = FontWeight.Bold,
@@ -144,7 +170,9 @@ fun SignInScreen(
 @Composable
 fun SignInEmailStep(
     email: String,
-    onEmailChange: (String) -> Unit
+    onEmailChange: (String) -> Unit,
+    focusManager: FocusManager,
+    isLoading: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -160,7 +188,18 @@ fun SignInEmailStep(
             onValueChange = onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            placeholder = { Text(stringResource(R.string.email)) }
+            placeholder = { Text(stringResource(R.string.email)) },
+            keyboardOptions = KeyboardOptions(
+                autoCorrectEnabled = true,
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }
+            ),
+            enabled = !isLoading
         )
     }
 }
@@ -168,8 +207,10 @@ fun SignInEmailStep(
 @Composable
 fun SignInPasswordStep(
     password: String,
-    onPasswordChange: (String) -> Unit
-
+    onPasswordChange: (String) -> Unit,
+    focusManager: FocusManager,
+    isLoading: Boolean,
+    onSignInClick: () -> Unit
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -189,7 +230,16 @@ fun SignInPasswordStep(
             placeholder = { Text(stringResource(R.string.password)) },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                    onSignInClick()
+                }
+            ),
             trailingIcon = {
                 val image =
                     if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
@@ -201,7 +251,8 @@ fun SignInPasswordStep(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description)
                 }
-            }
+            },
+            enabled = !isLoading
         )
     }
 }

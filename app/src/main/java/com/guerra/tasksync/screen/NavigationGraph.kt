@@ -32,17 +32,16 @@ fun NavigationGraph(
     googleAuthUiClient: GoogleAuthUiClient
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    NavHost( navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = startDestination) {
 
         navigation(
             startDestination = Screen.InitialScreen.route,
             route = "auth"
-        ){
+        ) {
 
             composable(Screen.InitialScreen.route) {
-                val state by viewModel.state.collectAsStateWithLifecycle()
-
                 val launcher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.StartIntentSenderForResult(),
                     onResult = { result ->
@@ -73,15 +72,15 @@ fun NavigationGraph(
                     state = state,
                     viewModel = viewModel,
                     onGoogleClick = {
-                    coroutineScope.launch {
-                        val signInIntentSender = googleAuthUiClient.signIn()
-                        launcher.launch(
-                            IntentSenderRequest.Builder(
-                                signInIntentSender ?: return@launch
-                            ).build()
-                        )
-                    }
-                },
+                        coroutineScope.launch {
+                            val signInIntentSender = googleAuthUiClient.signIn()
+                            launcher.launch(
+                                IntentSenderRequest.Builder(
+                                    signInIntentSender ?: return@launch
+                                ).build()
+                            )
+                        }
+                    },
                     onSignInClick = {
                         navController.navigate(Screen.SignInScreen.route)
                     },
@@ -90,16 +89,27 @@ fun NavigationGraph(
                     })
             }
 
-            composable(Screen.SignUpScreen.route){
+            composable(Screen.SignUpScreen.route) {
+                LaunchedEffect(key1 = state.isSignInSuccessful) {
+                    if (state.isSignInSuccessful) {
+                        viewModel.resetState()
+                        navController.navigate("main") {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+
                 SignUpScreen(
                     onFinish = { navController.popBackStack() },
-                    onSignUpClick = {}
+                    onSignUpClick = { email, password, fullName ->
+                        viewModel.signUpWithEmail(email, password, fullName)
+                    },
+                    viewModel = viewModel
                 )
             }
 
-            composable(Screen.SignInScreen.route){
-                val state by viewModel.state.collectAsStateWithLifecycle()
-
+            composable(Screen.SignInScreen.route) {
                 LaunchedEffect(key1 = state.isSignInSuccessful) {
                     if (state.isSignInSuccessful) {
                         viewModel.resetState()
@@ -123,7 +133,7 @@ fun NavigationGraph(
         navigation(
             startDestination = Screen.MainScreen.route,
             route = "main"
-        ){
+        ) {
             composable(Screen.MainScreen.route) {
                 MainScreen(
                     context = context,

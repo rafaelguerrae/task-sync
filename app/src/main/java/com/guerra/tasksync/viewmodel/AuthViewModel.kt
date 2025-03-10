@@ -45,7 +45,10 @@ class AuthViewModel @Inject constructor(
                     }
                 } catch (e: Exception) {
                     _state.update {
-                        it.copy(isSignInSuccessful = false, signInErrorMessage = "Sync failed: ${e.message}")
+                        it.copy(
+                            isSignInSuccessful = false,
+                            signInErrorMessage = "Sync failed: ${e.message}"
+                        )
                     }
                 }
             } else {
@@ -63,7 +66,6 @@ class AuthViewModel @Inject constructor(
                 signInErrorMessage = "Sign in cancelled"
             )
         }
-        _loading.value = false
     }
 
     fun resetState() {
@@ -72,22 +74,42 @@ class AuthViewModel @Inject constructor(
 
     fun signUpWithEmail(email: String, password: String, fullName: String) {
         viewModelScope.launch {
+            _loading.value = true
             try {
                 val authResult = auth.createUserWithEmailAndPassword(email, password).await()
                 val user = authResult.user
+                val initial = fullName.first().lowercase()
                 val userData = user?.let {
                     UserData(
                         userId = it.uid,
                         fullName = fullName,
-                        profilePictureUrl = it.photoUrl?.toString(),
+                        profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/$initial.png",
                         email = it.email
                     )
                 }
                 if (userData != null) {
-                    syncUser(userData)
+                    val syncResult = syncUser(userData)
+                    if (syncResult.isSuccess) {
+                        _state.update { currentState ->
+                            currentState.copy(isSignInSuccessful = true, signInErrorMessage = null)
+                        }
+                    } else {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                isSignInSuccessful = false,
+                                signInErrorMessage = "User sync failed: ${syncResult.exceptionOrNull()?.message}"
+                            )
+                        }
+                    }
                 }
+                Log.d("AuthViewModel", "Sign up process complete")
             } catch (e: Exception) {
-                onSignInCancelled()
+                _state.update { currentState ->
+                    currentState.copy(isSignInSuccessful = false, signInErrorMessage = "Sign up failed: ${e.message}")
+                }
+                Log.e("AuthViewModel", "Sign up failed", e)
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -103,7 +125,10 @@ class AuthViewModel @Inject constructor(
                 Log.d("AuthViewModel", "Sign in successful")
             } catch (e: Exception) {
                 _state.update { currentState ->
-                    currentState.copy(isSignInSuccessful = false, signInErrorMessage = "Sign in failed: ${e.message}")
+                    currentState.copy(
+                        isSignInSuccessful = false,
+                        signInErrorMessage = "Sign in failed: ${e.message}"
+                    )
                 }
                 Log.e("AuthViewModel", "Sign in failed", e)
             } finally {

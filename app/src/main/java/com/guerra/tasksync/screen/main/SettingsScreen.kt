@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,9 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -370,6 +373,8 @@ fun SignOutDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    var isLoading by remember { mutableStateOf(false) }
+
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         onDismissRequest = onDismiss,
@@ -377,9 +382,18 @@ fun SignOutDialog(
         text = { Text(text = stringResource(R.string.sign_out_message)) },
         confirmButton = {
             Button(
-                onClick = onConfirm
+                onClick = {
+                    onConfirm()
+                    isLoading = true
+                }
             ) {
-                Text(stringResource(R.string.yes))
+                if(isLoading)  CircularProgressIndicator(
+                    modifier = Modifier.size(10.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                    trackColor = colorResource(R.color.blue)
+                )
+                else Text(stringResource(R.string.yes))
             }
         },
         dismissButton = {

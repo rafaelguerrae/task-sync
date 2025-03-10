@@ -114,7 +114,7 @@ fun MainScreen(
                     coroutineScope.launch {
                         googleAuthUiClient.signOut()
                         navController.navigate("initial") {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            popUpTo(navController.graph.id) { inclusive = true }
                             launchSingleTop = true
                         }
                     }

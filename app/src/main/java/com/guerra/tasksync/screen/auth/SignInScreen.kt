@@ -1,5 +1,6 @@
 package com.guerra.tasksync.screen.auth
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,32 +42,32 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guerra.tasksync.R
+import com.guerra.tasksync.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.StateFlow
 
 
 @Composable
 fun SignInScreen(
     onFinish: () -> Unit,
-    onSignInClick: () -> Unit
-){
-    var step by remember { mutableIntStateOf(1) }
+    onSignInClick: (String, String) -> Unit,
+    viewModel : AuthViewModel
+) {
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val maxSteps = 2
-    var isLoading by remember { mutableStateOf(false) }
+    val isLoading by viewModel.loading.collectAsStateWithLifecycle()
 
     Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
 
         IconButton(
-            onClick = {
-                if (step > 1) {
-                    step--
-                } else {
-                    onFinish()
-                }
-            },
+            onClick = onFinish,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .size(35.dp)
@@ -82,30 +84,34 @@ fun SignInScreen(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (step) {
-                1 -> SignInEmailStep(email = email, onEmailChange = { email = it })
-                2 -> SignInPasswordStep(password = password, onPasswordChange = { password = it })
-                else -> Text(stringResource(R.string.unknown_step))
-            }
+            SignInEmailStep(email = email, onEmailChange = { email = it })
+
+            Spacer(modifier = Modifier.size(16.dp)
+            )
+
+            SignInPasswordStep(password = password, onPasswordChange = { password = it })
         }
+
+
+        Text(
+            text = stringResource(R.string.sign_in),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
 
 
         Button(
             onClick = {
-                if (step < maxSteps) {
-                    step++
-                } else {
-                    isLoading = true
-                    onSignInClick()
-                }
+                    onSignInClick(email, password)
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
             shape = RoundedCornerShape(12.dp),
             enabled = !isLoading
-        ){
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -123,7 +129,9 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text = if (step < maxSteps) "Next" else if(!isLoading)stringResource(R.string.signing_in) else stringResource(R.string.signing_in),
+                    text =if (!isLoading) stringResource(R.string.sign_in) else stringResource(
+                        R.string.signing_in
+                    ),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -151,6 +159,7 @@ fun SignInEmailStep(
             value = email,
             onValueChange = onEmailChange,
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
             placeholder = { Text(stringResource(R.string.email)) }
         )
     }
@@ -182,11 +191,15 @@ fun SignInPasswordStep(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
-                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                val description = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
+                val image =
+                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description =
+                    if (passwordVisible) stringResource(R.string.hide_password) else stringResource(
+                        R.string.show_password
+                    )
 
-                IconButton(onClick = {passwordVisible = !passwordVisible}){
-                    Icon(imageVector  = image, description)
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, description)
                 }
             }
         )

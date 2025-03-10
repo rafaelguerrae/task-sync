@@ -1,6 +1,7 @@
 package com.guerra.tasksync.screen.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +65,7 @@ fun InitialScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(8.dp).background(color = MaterialTheme.colorScheme.background)
     ) {
         Image(
             painter = rememberAsyncImagePainter(logoResId),
@@ -87,6 +88,10 @@ fun InitialScreen(
                     onGoogleClick()
                 },
                 modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 shape = RoundedCornerShape(12.dp),
                 enabled = !isLoading
 
@@ -123,8 +128,8 @@ fun InitialScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {

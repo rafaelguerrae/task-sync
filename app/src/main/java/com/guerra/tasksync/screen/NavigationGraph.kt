@@ -61,10 +61,7 @@ fun NavigationGraph(
 
                 LaunchedEffect(key1 = state.isSignInSuccessful) {
                     if (state.isSignInSuccessful) {
-                        Toast.makeText(context, "Sign in Successful", Toast.LENGTH_SHORT).show()
-
                         viewModel.resetState()
-
                         navController.navigate("main") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
@@ -101,9 +98,24 @@ fun NavigationGraph(
             }
 
             composable(Screen.SignInScreen.route){
+                val state by viewModel.state.collectAsStateWithLifecycle()
+
+                LaunchedEffect(key1 = state.isSignInSuccessful) {
+                    if (state.isSignInSuccessful) {
+                        viewModel.resetState()
+                        navController.navigate("main") {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+
                 SignInScreen(
+                    viewModel = viewModel,
                     onFinish = { navController.popBackStack() },
-                    onSignInClick = {}
+                    onSignInClick = { email, password ->
+                        viewModel.signInWithEmail(email, password)
+                    }
                 )
             }
         }
@@ -117,7 +129,8 @@ fun NavigationGraph(
                     context = context,
                     navController = navController,
                     googleAuthUiClient = googleAuthUiClient,
-                    coroutineScope = coroutineScope
+                    coroutineScope = coroutineScope,
+                    viewModel = viewModel
                 )
             }
         }

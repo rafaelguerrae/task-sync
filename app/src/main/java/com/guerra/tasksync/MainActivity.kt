@@ -14,14 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.android.gms.auth.api.identity.Identity
 import com.guerra.tasksync.screen.NavigationGraph
 import com.guerra.tasksync.ui.theme.TaskSyncTheme
-import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import com.guerra.tasksync.viewmodel.AuthViewModel
+import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

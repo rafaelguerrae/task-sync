@@ -1,5 +1,6 @@
 package com.guerra.tasksync.viewmodel
 
+import android.util.Log
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import androidx.lifecycle.ViewModel
@@ -14,6 +15,7 @@ import com.guerra.tasksync.data.UserData
 import com.guerra.tasksync.data.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -23,18 +25,33 @@ class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
-): ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(SignInState())
     val state = _state.asStateFlow()
 
-    fun onSignInResult(result: SignInResult){
-        _state.update{it.copy(
-            isSignInSuccessful = result.data != null,
-            signInErrorMessage = result.errorMessage
-        )}
-        result.data?.let { user ->
-            viewModelScope.launch {
-                syncUser(user)
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    private val _userData = MutableStateFlow<UserData?>(null)
+    val userData: StateFlow<UserData?> = _userData.asStateFlow()
+
+    fun onSignInResult(result: SignInResult) {
+        viewModelScope.launch {
+            if (result.data != null) {
+                try {
+                    syncUser(result.data)
+                    _state.update {
+                        it.copy(isSignInSuccessful = true, signInErrorMessage = null)
+                    }
+                } catch (e: Exception) {
+                    _state.update {
+                        it.copy(isSignInSuccessful = false, signInErrorMessage = "Sync failed: ${e.message}")
+                    }
+                }
+            } else {
+                _state.update {
+                    it.copy(isSignInSuccessful = false, signInErrorMessage = result.errorMessage)
+                }
             }
         }
     }
@@ -46,9 +63,10 @@ class AuthViewModel @Inject constructor(
                 signInErrorMessage = "Sign in cancelled"
             )
         }
+        _loading.value = false
     }
 
-    fun resetState(){
+    fun resetState() {
         _state.update { SignInState() }
     }
 
@@ -69,27 +87,49 @@ class AuthViewModel @Inject constructor(
                     syncUser(userData)
                 }
             } catch (e: Exception) {
-                // Update state with error
+                onSignInCancelled()
             }
         }
     }
 
     fun signInWithEmail(email: String, password: String) {
         viewModelScope.launch {
+            _loading.value = true
             try {
-                val authResult = auth.signInWithEmailAndPassword(email, password).await()
-                val user = authResult.user
-                val userData = user?.let {
-                    UserData(
-                        userId = it.uid,
-                        fullName = it.displayName,
-                        profilePictureUrl = it.photoUrl?.toString(),
-                        email = it.email
-                    )
+                auth.signInWithEmailAndPassword(email, password).await()
+                _state.update { currentState ->
+                    currentState.copy(isSignInSuccessful = true, signInErrorMessage = null)
                 }
+                Log.d("AuthViewModel", "Sign in successful")
             } catch (e: Exception) {
-                // Update state with error
+                _state.update { currentState ->
+                    currentState.copy(isSignInSuccessful = false, signInErrorMessage = "Sign in failed: ${e.message}")
+                }
+                Log.e("AuthViewModel", "Sign in failed", e)
+            } finally {
+                _loading.value = false
             }
+        }
+    }
+
+    private suspend fun getCurrentUserData(userId: String): UserData? {
+        return try {
+            val result = userRepository.getUser(userId)
+            if (result.isSuccess) {
+                result.getOrNull()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            UserData()
+        }
+
+    }
+
+    fun loadUserData(userId: String) {
+        viewModelScope.launch {
+            val data = getCurrentUserData(userId)
+            _userData.value = data
         }
     }
 

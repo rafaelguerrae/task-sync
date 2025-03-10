@@ -38,6 +38,23 @@ class FirebaseUserRepository @Inject constructor(
         }
     }
 
+    override suspend fun getUser(userId: String): Result<UserData> {
+        return try {
+            val snapshot = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+            val user = snapshot.toObject(UserData::class.java)
+            if (user != null) {
+                Result.success(user)
+            } else {
+                Result.failure(Exception("User not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun deleteUser(userData: UserData): Result<Unit> {
         return try {
             firestore.collection("users")

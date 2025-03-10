@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,13 +40,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.guerra.tasksync.R
+import com.guerra.tasksync.data.UserData
 import com.guerra.tasksync.screen.Screen
+import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -64,17 +68,25 @@ fun MainScreen(
     context: Context,
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    viewModel: AuthViewModel
 ) {
     val bottomNavController = rememberNavController()
     val isDarkTheme = isSystemInDarkTheme()
     var screenName by remember{ mutableStateOf("")}
 
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
+
+    LaunchedEffect(googleAuthUiClient.getSignedInUser()?.userId) {
+        googleAuthUiClient.getSignedInUser()?.userId?.let { userId ->
+            viewModel.loadUserData(userId)
+        }
+    }
+
     Scaffold(
         topBar = { TopBar(screenName) },
         bottomBar = { BottomNavigationBar(isDarkTheme, bottomNavController) }
     ) { padding ->
-
         NavHost(
             modifier = Modifier.padding(padding),
             navController = bottomNavController, startDestination = Screen.HomeScreen.route
@@ -82,7 +94,7 @@ fun MainScreen(
             composable(Screen.HomeScreen.route) {
                 screenName = stringResource(R.string.app_name)
                 HomeScreen(
-                    userData = googleAuthUiClient.getSignedInUser()
+                    userData = userData
                 )
             }
             composable(Screen.TeamsScreen.route) {
@@ -97,7 +109,7 @@ fun MainScreen(
             composable(Screen.SettingsScreen.route) {
                 screenName = stringResource(R.string.settings)
                 SettingsScreen(
-                userData = googleAuthUiClient.getSignedInUser(),
+                userData = userData?: UserData(),
                 onSignOut = {
                     coroutineScope.launch {
                         googleAuthUiClient.signOut()

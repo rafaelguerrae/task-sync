@@ -4,6 +4,7 @@
 
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
+    <string name="sign_in">Sign in</string>
 
     <string name="signing_in">Signing in...</string>
     <string name="signing_up">Signing up...</string>
@@ -49,4 +50,8 @@
     <string name="type_password">Type your password</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
+    <string name="exit">Exit</string>
+    <string name="your_sign_up_is_in_progress">Your sign up is in progress. Are you sure you want to leave?</string>
+    <string name="no_fullname">No full name</string>
+    <string name="no_email">No email</string>
 </resources>

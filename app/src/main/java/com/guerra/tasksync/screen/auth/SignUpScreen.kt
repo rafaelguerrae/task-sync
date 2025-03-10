@@ -1,5 +1,7 @@
 package com.guerra.tasksync.screen.auth
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,13 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +58,15 @@ fun SignUpScreen(
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    var showExitDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+
     val maxSteps = 3
+
+    BackHandler(enabled = true) {
+        showExitDialog = true
+    }
 
     Box(
         modifier = Modifier
@@ -60,13 +74,20 @@ fun SignUpScreen(
             .padding(16.dp)
     ) {
 
-        IconButton(
-            onClick = {
-                if (step > 1) {
-                    step--
-                } else {
+        if (showExitDialog) {
+            ExitDialog(
+                onDismiss = { showExitDialog = false },
+                onConfirm = {
                     onFinish()
                 }
+            )
+        }
+
+        IconButton(
+            onClick = {
+                if (isLoading || step == 1) showExitDialog = true
+                else if (step > 1) step--
+                else onFinish()
             },
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -81,13 +102,15 @@ fun SignUpScreen(
         }
 
         Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             when (step) {
                 1 -> SignUpFullNameStep(fullName = fullName, onFullNameChange = { fullName = it })
                 2 -> SignUpEmailStep(email = email, onEmailChange = { email = it })
-                3 -> SignUpPasswordStep(password = password, onPasswordChange = { password = it })
+                3 -> SignUpPasswordStep(password = password, onPasswordChange = { password = it }, isLoading = isLoading)
                 else -> Text("Unknown step")
             }
         }
@@ -104,8 +127,8 @@ fun SignUpScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
             shape = RoundedCornerShape(12.dp),
             enabled = !isLoading
         ) {
@@ -140,6 +163,42 @@ fun SignUpScreen(
             }
         }
     }
+}
+
+@Composable
+fun ExitDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = { onDismiss() },
+        title = { Text(stringResource(R.string.exit)) },
+        text = { Text(stringResource(R.string.your_sign_up_is_in_progress)) },
+        confirmButton = {
+            Button(onClick =
+            {
+                onConfirm()
+                onDismiss()
+            }
+            ) {
+                Text(stringResource(R.string.exit))
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick =  onDismiss,
+                colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -191,8 +250,8 @@ fun SignUpEmailStep(
 @Composable
 fun SignUpPasswordStep(
     password: String,
-    onPasswordChange: (String) -> Unit
-
+    onPasswordChange: (String) -> Unit,
+    isLoading: Boolean
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -209,6 +268,7 @@ fun SignUpPasswordStep(
             value = password,
             onValueChange = onPasswordChange,
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
             placeholder = { Text(stringResource(R.string.password)) },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),

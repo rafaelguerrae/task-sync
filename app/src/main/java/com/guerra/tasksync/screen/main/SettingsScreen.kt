@@ -58,7 +58,7 @@ import java.util.Locale
 
 @Composable
 fun SettingsScreen(
-    userData: UserData?,
+    userData: UserData,
     onSignOut: () -> Unit
 ) {
     val context = LocalContext.current
@@ -111,112 +111,119 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            if (userData?.profilePictureUrl != null) {
-                AsyncImage(
-                    model = userData.profilePictureUrl,
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(75.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+
+            AsyncImage(
+                model = userData.profilePictureUrl ?: R.drawable.default_pfp,
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = if (userData.fullName != null) "${userData.fullName}" else stringResource(
+                        R.string.no_fullname
+                    ),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
 
-            if (userData?.fullName != null) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center
+                Text(
+                    text = if (userData.fullName != null) "${userData.email}" else stringResource(R.string.no_email),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1
+                )
+
+                Spacer(Modifier.size(4.dp))
+
+                Row(
+                    modifier = Modifier.clickable { },
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    Text(
-                        text = "${userData.fullName}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = "${userData.email}",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.onSurface
+                    Icon(
+                        modifier = Modifier.size(15.dp),
+                        imageVector = Icons.Default.ModeEdit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(Modifier.size(4.dp))
 
-                    Row(
-                        modifier = Modifier.clickable { },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(15.dp),
-                            imageVector = Icons.Default.ModeEdit,
-                            contentDescription = "Edit",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        Spacer(Modifier.size(4.dp))
-
-                        Text(
-                            text = stringResource(R.string.edit_profile),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.edit_profile),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
 
-            HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.tertiary)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
 
-            SettingsItem(
-                action = {},
-                icon = Icons.Default.LightMode,
-                title = stringResource(R.string.theme),
-                description = stringResource(R.string.theme_description)
-            )
+        HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.tertiary)
 
-            SettingsItem(
-                action = {
-                    showLanguageDialog = true
-                },
-                icon = Icons.Default.Language,
-                title = stringResource(R.string.language),
-                description = stringResource(R.string.language_description)
-            )
+        SettingsItem(
+            action = {},
+            icon = Icons.Default.LightMode,
+            title = stringResource(R.string.theme),
+            description = stringResource(R.string.theme_description)
+        )
 
-            SettingsItem(
-                action = {},
-                icon = Icons.Default.Info,
-                title = stringResource(R.string.info),
-                description = stringResource(R.string.info_description)
-            )
+        SettingsItem(
+            action = {
+                showLanguageDialog = true
+            },
+            icon = Icons.Default.Language,
+            title = stringResource(R.string.language),
+            description = stringResource(R.string.language_description)
+        )
 
-            SettingsItem(
-                action = {},
-                icon = Icons.Default.DeleteForever,
-                title = stringResource(R.string.delete_my_data),
-                description = stringResource(R.string.delete_my_data_description)
-            )
+        SettingsItem(
+            action = {},
+            icon = Icons.Default.Info,
+            title = stringResource(R.string.info),
+            description = stringResource(R.string.info_description)
+        )
 
-            SettingsItem(
-                action = { showSignOutDialog = true },
-                icon = Icons.AutoMirrored.Filled.Logout,
-                title = stringResource(R.string.sign_out)
-            )
-        }
+        SettingsItem(
+            action = {},
+            icon = Icons.Default.DeleteForever,
+            title = stringResource(R.string.delete_my_data),
+            description = stringResource(R.string.delete_my_data_description)
+        )
+
+        SettingsItem(
+            action = { showSignOutDialog = true },
+            icon = Icons.AutoMirrored.Filled.Logout,
+            title = stringResource(R.string.sign_out)
+        )
     }
 }
+}
+
 
 @Composable
 fun SettingsItem(
@@ -344,12 +351,14 @@ fun LanguageSelectionDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss, colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                disabledContainerColor = MaterialTheme.colorScheme.background,
-                disabledContentColor = MaterialTheme.colorScheme.onSurface
-            )) {
+            Button(
+                onClick = onDismiss, colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
                 Text("Cancel")
             }
         }
@@ -374,12 +383,14 @@ fun SignOutDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss, colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                disabledContainerColor = MaterialTheme.colorScheme.background,
-                disabledContentColor = MaterialTheme.colorScheme.onSurface
-            )) {
+            Button(
+                onClick = onDismiss, colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
                 Text(stringResource(R.string.cancel))
             }
         }

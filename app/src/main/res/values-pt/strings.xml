@@ -5,6 +5,7 @@
     <string name="dont_have_account">Não tem uma conta?</string>
     <string name="sign_up">Cadastre-se</string>
 
+    <string name="sign_in">Entrar</string>
     <string name="signing_in">Entrando...</string>
     <string name="signing_up">Cadastrando...</string>
 
@@ -45,4 +46,9 @@
     <string name="spanish">Espanhol</string>
     <string name="select_language">Selecione o idioma</string>
     <string name="sign_out_message">Tem certeza que deseja sair?</string>
+    <string name="type_password">Escreva sua senha</string>
+    <string name="yes">Sim</string>
+    <string name="cancel">Cancelar</string>
+    <string name="exit">Sair</string>
+    <string name="your_sign_up_is_in_progress">Seu cadastro está em progresso. Tem certeza que deseja sair?</string>
 </resources>

@@ -25,15 +25,20 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,6 +61,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guerra.tasksync.R
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -68,100 +74,134 @@ fun SignInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-            .imePadding()
-    ) {
-
-        IconButton(
-            onClick = onFinish,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(35.dp)
-        ) {
-            Icon(
-                modifier = Modifier.fillMaxSize(),
-                imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onSurface
+    LaunchedEffect(key1 = state) {
+        if(state.signInErrorMessage != null){
+            snackBarHostState.showSnackbar(
+                message = state.signInErrorMessage ?: "",
+                withDismissAction = true
             )
         }
+    }
 
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            SignInEmailStep(
-                email = email,
-                onEmailChange = { email = it },
-                focusManager = focusManager,
-                isLoading = isLoading
-            )
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            SignInPasswordStep(
-                password = password,
-                onPasswordChange = { password = it },
-                focusManager = focusManager,
-                isLoading = isLoading,
-                onSignInClick = {
-                    onSignInClick(
-                        email,
-                        password
-                    )
-                })
+    val areTextFieldsFilled by remember {
+        derivedStateOf {
+            email.isNotEmpty() && password.isNotEmpty()
         }
+    }
 
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackBarHostState,
+                modifier = Modifier.imePadding()
+            )
+        }
+    ) { padding ->
 
-        Text(
-            text = stringResource(R.string.sign_in),
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
-
-
-        Button(
-            onClick = {
-                onSignInClick(email, password)
-            },
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(12.dp),
-            enabled = !isLoading
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+
+            IconButton(
+                onClick = onFinish,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .size(35.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        trackColor = colorResource(R.color.blue)
+                Icon(
+                    modifier = Modifier.fillMaxSize(),
+                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                SignInEmailStep(
+                    email = email,
+                    onEmailChange = { email = it },
+                    focusManager = focusManager,
+                    isLoading = isLoading
+                )
+
+                Spacer(modifier = Modifier.size(16.dp))
+
+                SignInPasswordStep(
+                    password = password,
+                    onPasswordChange = { password = it },
+                    focusManager = focusManager,
+                    isLoading = isLoading,
+                    onSignInClick = {
+                        if (areTextFieldsFilled) onSignInClick(email, password)
+                    })
+            }
+
+            Text(
+                text = stringResource(R.string.sign_in),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top=8.dp)
+            )
+
+            Button(
+                onClick = {
+                    if (areTextFieldsFilled)
+                        onSignInClick(
+                            email,
+                            password
+                        )
+                    else {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "Please fill in all fields", withDismissAction = true
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading && areTextFieldsFilled
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            trackColor = colorResource(R.color.blue)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.size(8.dp))
+
+                    Text(
+                        text = if (!isLoading) stringResource(R.string.sign_in) else stringResource(
+                            R.string.signing_in
+                        ),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Text(
-                    text = if (!isLoading) stringResource(R.string.sign_in) else stringResource(
-                        R.string.signing_in
-                    ),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
             }
         }
     }

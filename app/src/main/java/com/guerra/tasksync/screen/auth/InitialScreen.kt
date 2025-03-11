@@ -64,8 +64,7 @@ fun InitialScreen(
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp).background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize().background(color = MaterialTheme.colorScheme.background)
     ) {
         Image(
             painter = rememberAsyncImagePainter(logoResId),
@@ -79,7 +78,7 @@ fun InitialScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = 16.dp, vertical = 24.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
@@ -144,7 +143,7 @@ fun InitialScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(4.dp),
+                    .padding(bottom = 24.dp, top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {

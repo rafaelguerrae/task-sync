@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.UserData
 import java.util.Locale
@@ -115,13 +116,21 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
 
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = userData.profilePictureUrl ?: R.drawable.default_pfp,
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(75.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                loading = {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        trackColor = colorResource(R.color.blue)
+                    )
+                }
             )
             Spacer(modifier = Modifier.width(8.dp))
 

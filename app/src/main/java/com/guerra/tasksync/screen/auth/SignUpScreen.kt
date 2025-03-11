@@ -18,8 +18,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -27,6 +32,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -35,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guerra.tasksync.R
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(
@@ -75,135 +87,191 @@ fun SignUpScreen(
 
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
 
+    val isPasswordCorrect = password.length >= 8 &&
+            password.any { it.isUpperCase() } &&
+            password.any { it.isLowerCase() } &&
+            password.any { it.isDigit() } &&
+            password.any { !it.isLetterOrDigit() }
+
     val focusFullName = remember { FocusRequester() }
     val focusEmail = remember { FocusRequester() }
     val focusPassword = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler(enabled = true) {
         showExitDialog = true
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-            .imePadding()
-    ) {
-
-        if (showExitDialog) {
-            ExitDialog(
-                onDismiss = { showExitDialog = false },
-                onConfirm = {
-                    onFinish()
-                }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackBarHostState,
+                modifier = Modifier.imePadding()
             )
         }
-
-        IconButton(
-            onClick = {
-                if (isLoading || step == 1) showExitDialog = true
-                else if (step > 1) step--
-                else onFinish()
-            },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(35.dp)
-        ) {
-            Icon(
-                modifier = Modifier.fillMaxSize(),
-                imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
-
-        Column(
+    ) { padding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
         ) {
-            when (step) {
-                1 -> SignUpFullNameStep(
-                    fullName = fullName,
-                    onFullNameChange = { fullName = it },
-                    onNext = {
-                        step++
-                    },
-                    focusRequester = focusFullName
-                )
 
-                2 -> SignUpEmailStep(
-                    email = email,
-                    onEmailChange = { email = it },
-                    onNext = {
-                        step++
-                    },
-                    focusRequester = focusEmail
+            if (showExitDialog) {
+                ExitDialog(
+                    onDismiss = { showExitDialog = false },
+                    onConfirm = {
+                        onFinish()
+                    }
                 )
-
-                3 -> SignUpPasswordStep(
-                    password = password,
-                    onPasswordChange = { password = it },
-                    isLoading = isLoading,
-                    focusManager = focusManager,
-                    onSignUpClick = {
-                        onSignUpClick(email, password, fullName)
-                    },
-                    focusRequester = focusPassword
-                )
-
-                else -> Text("Unknown step")
             }
-        }
 
+            Text(
+                text = stringResource(R.string.sign_up),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+            )
 
-        Button(
-            onClick = {
-                if (step < maxSteps) {
-                    step++
-                } else {
-                    onSignUpClick(email, password, fullName)
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(12.dp),
-            enabled = !isLoading
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            IconButton(
+                onClick = {
+                    if (isLoading || step == 1) showExitDialog = true
+                    else if (step > 1) step--
+                    else onFinish()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .size(35.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        trackColor = colorResource(R.color.blue)
+                Icon(
+                    modifier = Modifier.fillMaxSize(),
+                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                when (step) {
+                    1 -> SignUpFullNameStep(
+                        fullName = fullName,
+                        onFullNameChange = { fullName = it },
+                        onNext = {
+                            step++
+                        },
+                        focusRequester = focusFullName
+                    )
+
+                    2 -> SignUpEmailStep(
+                        email = email,
+                        onEmailChange = { email = it },
+                        onNext = {
+                            step++
+                        },
+                        focusRequester = focusEmail
+                    )
+
+                    3 -> SignUpPasswordStep(
+                        password = password,
+                        onPasswordChange = { password = it },
+                        isLoading = isLoading,
+                        focusManager = focusManager,
+                        onSignUpClick = {
+                            if (email.isBlank() || password.isBlank() || fullName.isBlank()) {
+                                coroutineScope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = "Please fill in all fields.",
+                                        withDismissAction = true
+                                    )
+                                }
+                            } else if(!isPasswordCorrect){
+                                coroutineScope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = "Ensure your password meets the requirements.",
+                                        withDismissAction = true
+                                    )
+                                }
+                            }
+                            else onSignUpClick(email, password, fullName)
+                        },
+                        focusRequester = focusPassword
+                    )
+
+                    else -> Text("Unknown step")
+                }
+            }
+
+
+            Button(
+                onClick = {
+                    if (step < maxSteps) {
+                        step++
+                    } else {
+                        if (email.isBlank() || password.isBlank() || fullName.isBlank()) {
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    message = "Please fill in all fields.",
+                                    withDismissAction = true
+                                )
+                            }
+                        } else if(!isPasswordCorrect){
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    message = "Ensure your password meets the requirements.",
+                                    withDismissAction = true
+                                )
+                            }
+                        }
+                        else onSignUpClick(email, password, fullName)
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            trackColor = colorResource(R.color.blue)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.size(8.dp))
+
+                    Text(
+                        text = if (step < maxSteps) {
+                            stringResource(R.string.next_step)
+                        } else if (!isLoading) {
+                            stringResource(R.string.sign_up)
+                        } else {
+                            stringResource(R.string.signing_up)
+                        },
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Text(
-                    text = if (step < maxSteps) {
-                        stringResource(R.string.next_step)
-                    } else if (!isLoading) {
-                        stringResource(R.string.sign_up)
-                    } else {
-                        stringResource(R.string.signing_up)
-                    },
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
             }
         }
     }
@@ -232,7 +300,9 @@ fun SignUpFullNameStep(
         TextField(
             value = fullName,
             onValueChange = onFullNameChange,
-            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             placeholder = { Text(stringResource(R.string.fullname)) },
             maxLines = 1,
             singleLine = true,
@@ -344,7 +414,51 @@ fun SignUpPasswordStep(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, contentDescription = description)
                 }
+            },
+            supportingText = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    PasswordPolicy(
+                        "Minimum 8 characters", password.length >= 8
+                    )
+                    PasswordPolicy(
+                        "Contains an uppercase character", password.any { it.isUpperCase() }
+                    )
+                    PasswordPolicy(
+                        "Contains a lowercase character", password.any { it.isLowerCase() }
+                    )
+                    PasswordPolicy(
+                        "Contains a special character", password.any { !it.isLetterOrDigit() }
+                    )
+                    PasswordPolicy(
+                        "Contains a numeric character", password.any { it.isDigit() }
+                    )
+                }
             }
+        )
+    }
+}
+
+@Composable
+fun PasswordPolicy(
+    policy: String,
+    isCheck: Boolean
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Icon(
+            modifier = Modifier.size(12.dp),
+            imageVector = if (isCheck) Icons.Rounded.Check else Icons.Default.RadioButtonUnchecked,
+            tint = if (isCheck) MaterialTheme.colorScheme.onSurface else Color.Gray,
+            contentDescription = ""
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(
+            text = policy,
+            fontSize = 12.sp,
+            fontWeight = if (isCheck) FontWeight.Bold else FontWeight.Light,
+            color = if (isCheck) MaterialTheme.colorScheme.onSurface else Color.Gray
         )
     }
 }

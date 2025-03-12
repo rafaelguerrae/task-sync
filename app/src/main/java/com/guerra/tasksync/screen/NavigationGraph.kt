@@ -32,7 +32,7 @@ fun NavigationGraph(
     googleAuthUiClient: GoogleAuthUiClient
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.signInState.collectAsStateWithLifecycle()
 
     NavHost(navController = navController, startDestination = startDestination) {
 

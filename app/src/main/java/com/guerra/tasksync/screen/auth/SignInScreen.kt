@@ -74,7 +74,7 @@ fun SignInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.signInState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()

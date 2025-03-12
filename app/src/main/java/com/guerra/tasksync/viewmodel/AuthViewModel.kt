@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.update
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -26,8 +27,9 @@ class AuthViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SignInState())
-    val state = _state.asStateFlow()
+
+    private val _signInState = MutableStateFlow(SignInState())
+    val signInState = _signInState.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -35,16 +37,19 @@ class AuthViewModel @Inject constructor(
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData.asStateFlow()
 
+    val currentUser: FirebaseUser?
+        get() = auth.currentUser
+
     fun onSignInResult(result: SignInResult) {
         viewModelScope.launch {
             if (result.data != null) {
                 try {
                     syncUser(result.data)
-                    _state.update {
+                    _signInState.update {
                         it.copy(isSignInSuccessful = true, signInErrorMessage = null)
                     }
                 } catch (e: Exception) {
-                    _state.update {
+                    _signInState.update {
                         it.copy(
                             isSignInSuccessful = false,
                             signInErrorMessage = "Sync failed: ${e.message}"
@@ -52,7 +57,7 @@ class AuthViewModel @Inject constructor(
                     }
                 }
             } else {
-                _state.update {
+                _signInState.update {
                     it.copy(isSignInSuccessful = false, signInErrorMessage = result.errorMessage)
                 }
             }
@@ -60,7 +65,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun onSignInCancelled() {
-        _state.update { currentState ->
+        _signInState.update { currentState ->
             currentState.copy(
                 isSignInSuccessful = false,
                 signInErrorMessage = "Sign in cancelled"
@@ -69,7 +74,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun resetState() {
-        _state.update { SignInState() }
+        _signInState.update { SignInState() }
     }
 
     fun signUpWithEmail(email: String, password: String, fullName: String) {
@@ -90,11 +95,11 @@ class AuthViewModel @Inject constructor(
                 if (userData != null) {
                     val syncResult = syncUser(userData)
                     if (syncResult.isSuccess) {
-                        _state.update { currentState ->
+                        _signInState.update { currentState ->
                             currentState.copy(isSignInSuccessful = true, signInErrorMessage = null)
                         }
                     } else {
-                        _state.update { currentState ->
+                        _signInState.update { currentState ->
                             currentState.copy(
                                 isSignInSuccessful = false,
                                 signInErrorMessage = "User sync failed: ${syncResult.exceptionOrNull()?.message}"
@@ -102,9 +107,11 @@ class AuthViewModel @Inject constructor(
                         }
                     }
                 }
+
+                sendEmailVerification(user ?: return@launch)
                 Log.d("AuthViewModel", "Sign up process complete")
             } catch (e: Exception) {
-                _state.update { currentState ->
+                _signInState.update { currentState ->
                     currentState.copy(isSignInSuccessful = false, signInErrorMessage = "Sign up failed: ${e.message}")
                 }
                 Log.e("AuthViewModel", "Sign up failed", e)
@@ -119,12 +126,12 @@ class AuthViewModel @Inject constructor(
             _loading.value = true
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
-                _state.update { currentState ->
+                _signInState.update { currentState ->
                     currentState.copy(isSignInSuccessful = true, signInErrorMessage = null)
                 }
                 Log.d("AuthViewModel", "Sign in successful")
             } catch (e: Exception) {
-                _state.update { currentState ->
+                _signInState.update { currentState ->
                     currentState.copy(
                         isSignInSuccessful = false,
                         signInErrorMessage = "Sign in failed: ${e.message}"
@@ -166,4 +173,44 @@ class AuthViewModel @Inject constructor(
             userRepository.createUser(userData)
         }
     }
+
+    fun sendEmailVerification(user: FirebaseUser){
+        viewModelScope.launch {
+            val result = userRepository.sendEmailVerification(user)
+            if (result.isSuccess) {
+                Log.d("AuthViewModel", "Email verification sent successfully")
+            }
+            else{
+                Log.e("AuthViewModel", "Email verification gone wrong", result.exceptionOrNull())
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String, onResult: (Boolean) -> Unit){
+        viewModelScope.launch {
+            val result = userRepository.sendPasswordResetEmail(email = email)
+            if (result.isSuccess) {
+                Log.d("AuthViewModel", "Password reset email sent successfully")
+                onResult(true)
+            }
+            else{
+                Log.e("AuthViewModel", "Password reset email gone wrong", result.exceptionOrNull())
+                onResult(false)
+            }
+        }
+    }
+
+    fun deleteUser(user: FirebaseUser, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = userRepository.deleteUser(user)
+            if (result.isSuccess) {
+                Log.d("AuthViewModel", "User deletion successful")
+                onResult(true)
+            } else {
+                Log.e("AuthViewModel", "User deletion failed", result.exceptionOrNull())
+                onResult(false)
+            }
+        }
+    }
+
 }

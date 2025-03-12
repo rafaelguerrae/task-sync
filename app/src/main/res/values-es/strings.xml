@@ -51,4 +51,19 @@
     <string name="cancel">Cancelar</string>
     <string name="exit">Salir</string>
     <string name="your_sign_up_is_in_progress">Tu registro está en proceso. ¿Estás seguro de que deseas salir?</string>
+    <string name="no_fullname">Sin nombre completo</string>
+    <string name="no_email">Sin correo electrónico</string>
+    <string name="reset_password">Restablecer contraseña</string>
+    <string name="reset_password_description">Puede cambiar su contraseña por correo electrónico</string>
+    <string name="minimum_characters">Mínimo 8 caracteres</string>
+    <string name="uppercase_characters">Contiene un carácter en mayúscula</string>
+    <string name="lowercase_characters">Contiene un carácter en minúscula</string>
+    <string name="special_characters">Contiene un carácter especial</string>
+    <string name="numeric_characters">Contiene un carácter numérico</string>
+    <string name="delete_message">¿Está seguro de que desea eliminar sus datos de TaskSync?</string>
+    <string name="reset_message">Recibirá un correo electrónico para cambiar su contraseña para esta cuenta</string>
+    <string name="email_verify_message">Revise su correo electrónico para validar su cuenta.</string>
+    <string name="email_verify_message2">Si ya lo ha hecho, puede hacer clic en el botón que aparece a continuación.</string>
+    <string name="resend_email">Reenviar correo electrónico</string>
+    <string name="done">Hecho</string>
 </resources>

@@ -54,4 +54,17 @@
     <string name="your_sign_up_is_in_progress">Your sign up is in progress. Are you sure you want to leave?</string>
     <string name="no_fullname">No full name</string>
     <string name="no_email">No email</string>
+    <string name="reset_password">Reset password</string>
+    <string name="reset_password_description">You can change your password by e-mail</string>
+    <string name="uppercase_characters">Contains an uppercase character</string>
+    <string name="lowercase_characters">Contains a lowercase character</string>
+    <string name="special_characters">Contains a special character</string>
+    <string name="numeric_characters">Contains a numeric character</string>
+    <string name="minimum_characters">Minimum 8 characters</string>
+    <string name="delete_message">Are you sure you want to delete your data from TaskSync?</string>
+    <string name="reset_message">You will receive an e-mail to change your password for this account</string>
+    <string name="email_verify_message">Check your e-mail to validate your account.</string>
+    <string name="email_verify_message2">If you have done it already, you can click the button bellow.</string>
+    <string name="resend_email">Resend e-mail</string>
+    <string name="done">Done</string>
 </resources>

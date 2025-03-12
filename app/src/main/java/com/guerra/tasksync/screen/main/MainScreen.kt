@@ -46,6 +46,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.UserData
 import com.guerra.tasksync.screen.Screen
@@ -53,6 +54,7 @@ import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class BottomNavigationItem(
     val title: String,
@@ -62,6 +64,7 @@ data class BottomNavigationItem(
     val hasNews: Boolean,
     val badgeCount: Int? = null
 )
+
 
 @Composable
 fun MainScreen(
@@ -73,9 +76,10 @@ fun MainScreen(
 ) {
     val bottomNavController = rememberNavController()
     val isDarkTheme = isSystemInDarkTheme()
-    var screenName by remember{ mutableStateOf("")}
+    var screenName by remember { mutableStateOf("") }
 
     val userData by viewModel.userData.collectAsStateWithLifecycle()
+    val firebaseUser = viewModel.currentUser
 
     LaunchedEffect(googleAuthUiClient.getSignedInUser()?.userId) {
         googleAuthUiClient.getSignedInUser()?.userId?.let { userId ->
@@ -109,17 +113,38 @@ fun MainScreen(
             composable(Screen.SettingsScreen.route) {
                 screenName = stringResource(R.string.settings)
                 SettingsScreen(
-                userData = userData?: UserData(),
-                onSignOut = {
-                    coroutineScope.launch {
-                        googleAuthUiClient.signOut()
-                        navController.navigate("initial") {
-                            popUpTo(navController.graph.id) { inclusive = true }
-                            launchSingleTop = true
+                    userData = userData ?: UserData(),
+                    onSignOut = {
+                        coroutineScope.launch {
+                            googleAuthUiClient.signOut()
+                            navController.navigate("initial") {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
-                    }
-                }
-            ) }
+                    },
+                    onDelete = {
+                        firebaseUser?.let { user ->
+                            viewModel.deleteUser(user) {
+                                if (it) {
+                                    coroutineScope.launch {
+                                        googleAuthUiClient.signOut()
+                                        navController.navigate("initial") {
+                                            popUpTo(navController.graph.id) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                } else {
+                                    //TODO show error
+                                }
+
+                            }
+                        }
+
+                    },
+                    viewModel = viewModel
+                )
+            }
         }
 
     }
@@ -127,7 +152,7 @@ fun MainScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(screenName: String){
+fun TopBar(screenName: String) {
     TopAppBar(
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -201,7 +226,7 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
                 selected = selectedItemIndex == index,
                 onClick = {
                     selectedItemIndex = index
-                    bottomNavController.navigate(item.route){
+                    bottomNavController.navigate(item.route) {
                         popUpTo(bottomNavController.graph.findStartDestination().id) {
                             saveState = true
                         }

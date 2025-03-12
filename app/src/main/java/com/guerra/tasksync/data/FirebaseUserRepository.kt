@@ -1,5 +1,8 @@
 package com.guerra.tasksync.data
 
+import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -7,7 +10,8 @@ import javax.inject.Singleton
 
 @Singleton
 class FirebaseUserRepository @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth
 ) : UserRepository {
 
     override suspend fun createUser(userData: UserData): Result<Unit> {
@@ -55,15 +59,45 @@ class FirebaseUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun deleteUser(userData: UserData): Result<Unit> {
+    override suspend fun deleteUser(user: FirebaseUser): Result<Unit> {
         return try {
             firestore.collection("users")
-                .document(userData.userId)
+                .document(user.uid)
                 .delete()
                 .await()
+
+            user.delete().await()
+                ?: throw Exception("No authenticated user to delete")
+
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        catch (e: Exception) {
+    }
+
+    override suspend fun sendEmailVerification(user: FirebaseUser): Result<Unit> {
+        return try {
+
+                user.sendEmailVerification().await()
+                Log.d("UserRepository", "Verification email sent.")
+            Log.e("UserRepository", "No user logged in.")
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to send verification email: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun sendPasswordResetEmail(
+        email: String
+    ): Result<Unit> {
+        return try {
+            firebaseAuth.sendPasswordResetEmail(email).await()
+            Log.d("UserRepository", "Password reset email sent.")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Password reset failed: ${e.message}")
             Result.failure(e)
         }
     }

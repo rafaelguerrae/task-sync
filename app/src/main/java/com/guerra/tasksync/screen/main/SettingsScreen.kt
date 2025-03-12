@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
@@ -54,16 +55,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.UserData
+import com.guerra.tasksync.viewmodel.AuthViewModel
 import java.util.Locale
 
 @Composable
 fun SettingsScreen(
     userData: UserData,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    onDelete: () -> Unit,
+    viewModel: AuthViewModel
 ) {
     val context = LocalContext.current
 
@@ -71,6 +77,10 @@ fun SettingsScreen(
 
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showSignOutDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showResetPasswordDialog by remember { mutableStateOf(false) }
+
+    var isPasswordDone by remember { mutableStateOf(false) }
 
     var appLanguage by remember {
         mutableStateOf(
@@ -105,6 +115,37 @@ fun SettingsScreen(
         )
     }
 
+    if (showDeleteDialog) {
+        DeleteDialog(
+            onConfirm = onDelete,
+            onDismiss = {
+                showSignOutDialog = false
+            }
+        )
+    }
+
+    if (showResetPasswordDialog) {
+        ResetPasswordDialog(
+            onConfirm = {
+                viewModel.sendPasswordResetEmail(userData.email ?: "") {
+                    if (it) {
+                        isPasswordDone = true
+                    } else {
+                        //TODO show error
+                    }
+                }
+
+            },
+            onDismiss = {
+                showSignOutDialog = false
+            },
+            isPasswordDone = isPasswordDone,
+            onDone = {
+                showResetPasswordDialog = false
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -113,14 +154,14 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
 
             SubcomposeAsyncImage(
                 model = userData.profilePictureUrl ?: R.drawable.default_pfp,
                 contentDescription = "Profile Picture",
                 modifier = Modifier
-                    .size(75.dp)
+                    .size(70.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
                 loading = {
@@ -132,7 +173,7 @@ fun SettingsScreen(
                     )
                 }
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
 
             Column(
@@ -163,7 +204,7 @@ fun SettingsScreen(
                     minLines = 1
                 )
 
-                Spacer(Modifier.size(4.dp))
+                Spacer(Modifier.size(8.dp))
 
                 Row(
                     modifier = Modifier.clickable { },
@@ -188,52 +229,59 @@ fun SettingsScreen(
         }
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
 
-        HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.tertiary)
+            HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.tertiary)
 
-        SettingsItem(
-            action = {},
-            icon = Icons.Default.LightMode,
-            title = stringResource(R.string.theme),
-            description = stringResource(R.string.theme_description)
-        )
+            SettingsItem(
+                action = {},
+                icon = Icons.Default.LightMode,
+                title = stringResource(R.string.theme),
+                description = stringResource(R.string.theme_description)
+            )
 
-        SettingsItem(
-            action = {
-                showLanguageDialog = true
-            },
-            icon = Icons.Default.Language,
-            title = stringResource(R.string.language),
-            description = stringResource(R.string.language_description)
-        )
+            SettingsItem(
+                action = {
+                    showLanguageDialog = true
+                },
+                icon = Icons.Default.Language,
+                title = stringResource(R.string.language),
+                description = stringResource(R.string.language_description)
+            )
 
-        SettingsItem(
-            action = {},
-            icon = Icons.Default.Info,
-            title = stringResource(R.string.info),
-            description = stringResource(R.string.info_description)
-        )
+            SettingsItem(
+                action = {},
+                icon = Icons.Default.Info,
+                title = stringResource(R.string.info),
+                description = stringResource(R.string.info_description)
+            )
 
-        SettingsItem(
-            action = {},
-            icon = Icons.Default.DeleteForever,
-            title = stringResource(R.string.delete_my_data),
-            description = stringResource(R.string.delete_my_data_description)
-        )
+            SettingsItem(
+                action = { showResetPasswordDialog = true },
+                icon = Icons.Default.ChangeCircle,
+                title = stringResource(R.string.reset_password),
+                description = stringResource(R.string.reset_password_description)
+            )
 
-        SettingsItem(
-            action = { showSignOutDialog = true },
-            icon = Icons.AutoMirrored.Filled.Logout,
-            title = stringResource(R.string.sign_out)
-        )
+            SettingsItem(
+                action = { showDeleteDialog = true },
+                icon = Icons.Default.DeleteForever,
+                title = stringResource(R.string.delete_my_data),
+                description = stringResource(R.string.delete_my_data_description)
+            )
+
+            SettingsItem(
+                action = { showSignOutDialog = true },
+                icon = Icons.AutoMirrored.Filled.Logout,
+                title = stringResource(R.string.sign_out)
+            )
+        }
     }
-}
 }
 
 
@@ -249,25 +297,24 @@ fun SettingsItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp)
+            .height(60.dp)
             .clickable { action() }
     ) {
         Spacer(modifier = Modifier.size(16.dp))
 
         Icon(
             modifier = Modifier
-                .size(30.dp),
+                .size(25.dp),
             imageVector = icon,
             contentDescription = title,
             tint = MaterialTheme.colorScheme.onSurface
         )
 
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
@@ -390,13 +437,13 @@ fun SignOutDialog(
         title = { Text(text = stringResource(R.string.sign_out)) },
         text = { Text(text = stringResource(R.string.sign_out_message)) },
         confirmButton = {
-            Button(
+            Button(enabled = !isLoading,
                 onClick = {
                     onConfirm()
                     isLoading = true
                 }
             ) {
-                if(isLoading)  CircularProgressIndicator(
+                if (isLoading) CircularProgressIndicator(
                     modifier = Modifier.size(10.dp),
                     color = Color.White,
                     strokeWidth = 2.dp,
@@ -412,9 +459,128 @@ fun SignOutDialog(
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     disabledContainerColor = MaterialTheme.colorScheme.background,
                     disabledContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                ), enabled = !isLoading
             ) {
                 Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    var isLoading by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.delete_my_data)) },
+        text = { Text(text = stringResource(R.string.delete_message)) },
+        confirmButton = {
+            Button(enabled = !isLoading,
+                onClick = {
+                    onConfirm()
+                    isLoading = true
+                }
+            ) {
+                if (isLoading) CircularProgressIndicator(
+                    modifier = Modifier.size(10.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                    trackColor = colorResource(R.color.blue)
+                )
+                else Text(stringResource(R.string.yes))
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss, colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                ), enabled = !isLoading
+            ) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun ResetPasswordDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    onDone: () -> Unit,
+    isPasswordDone: Boolean
+) {
+    var isLoading by remember { mutableStateOf(false) }
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.password_animation))
+
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = onDismiss,
+        title = { if (!isPasswordDone) Text(text = stringResource(R.string.reset_password)) },
+        text = {
+            if (!isPasswordDone) Text(text = stringResource(R.string.reset_message))
+            else {    Column(modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center){
+
+                    LottieAnimation(
+                        composition = composition,
+                        speed = 0.7f,
+                        modifier = Modifier.size(150.dp)
+                    )
+                } }
+               },
+        confirmButton = {
+            if (!isPasswordDone) {
+                Button(
+                    enabled = !isLoading,
+                    onClick = {
+                        onConfirm()
+                        isLoading = true
+                    }
+                ) {
+                    if (isLoading) CircularProgressIndicator(
+                        modifier = Modifier.size(10.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        trackColor = colorResource(R.color.blue)
+                    )
+                    else Text("Ok")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        onDone()
+                    }, colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.background,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text(stringResource(R.string.done))
+                }
+            }
+        },
+        dismissButton = {
+            if (!isPasswordDone) {
+                Button(
+                    onClick = onDismiss, colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.background,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface
+                    ), enabled = !isLoading
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
             }
         }
     )

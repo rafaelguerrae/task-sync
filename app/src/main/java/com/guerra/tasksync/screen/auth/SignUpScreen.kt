@@ -1,6 +1,7 @@
 package com.guerra.tasksync.screen.auth
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,14 +59,21 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.airbnb.lottie.compose.LottieAnimatable
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.guerra.tasksync.R
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
@@ -77,7 +85,7 @@ fun SignUpScreen(
     onSignUpClick: (String, String, String) -> Unit,
     viewModel: AuthViewModel
 ) {
-    var step by remember { mutableIntStateOf(1) }
+    var step by remember { mutableIntStateOf(0) }
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -86,6 +94,7 @@ fun SignUpScreen(
     val maxSteps = 3
 
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
+    val firebaseUser = viewModel.currentUser
 
     val isPasswordCorrect = password.length >= 8 &&
             password.any { it.isUpperCase() } &&
@@ -164,6 +173,14 @@ fun SignUpScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 when (step) {
+                    0 -> VerifyEmailStep(
+                        onResendClick = {
+                            if (firebaseUser != null) {
+                                viewModel.sendEmailVerification(firebaseUser)
+                            }
+                        }
+                    )
+
                     1 -> SignUpFullNameStep(
                         fullName = fullName,
                         onFullNameChange = { fullName = it },
@@ -195,15 +212,14 @@ fun SignUpScreen(
                                         withDismissAction = true
                                     )
                                 }
-                            } else if(!isPasswordCorrect){
+                            } else if (!isPasswordCorrect) {
                                 coroutineScope.launch {
                                     snackBarHostState.showSnackbar(
                                         message = "Ensure your password meets the requirements.",
                                         withDismissAction = true
                                     )
                                 }
-                            }
-                            else onSignUpClick(email, password, fullName)
+                            } else onSignUpClick(email, password, fullName)
                         },
                         focusRequester = focusPassword
                     )
@@ -225,15 +241,14 @@ fun SignUpScreen(
                                     withDismissAction = true
                                 )
                             }
-                        } else if(!isPasswordCorrect){
+                        } else if (!isPasswordCorrect) {
                             coroutineScope.launch {
                                 snackBarHostState.showSnackbar(
                                     message = "Ensure your password meets the requirements.",
                                     withDismissAction = true
                                 )
                             }
-                        }
-                        else onSignUpClick(email, password, fullName)
+                        } else onSignUpClick(email, password, fullName)
                     }
                 },
                 modifier = Modifier
@@ -274,6 +289,46 @@ fun SignUpScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun VerifyEmailStep(
+    onResendClick: () -> Unit
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.email_animation))
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        LottieAnimation(composition = composition, speed = 1.2f, modifier = Modifier.size(250.dp))
+
+        Text(
+            modifier = Modifier.clickable {
+                onResendClick()
+            },
+            text = stringResource(R.string.resend_email),
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
+
+        Spacer(modifier = Modifier.size(30.dp))
+
+        Text(
+            text = stringResource(R.string.email_verify_message),
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+        Text(
+            text = stringResource(R.string.email_verify_message2),
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Light,
+            fontSize = 12.sp
+        )
     }
 }
 
@@ -418,19 +473,22 @@ fun SignUpPasswordStep(
             supportingText = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     PasswordPolicy(
-                        "Minimum 8 characters", password.length >= 8
+                        stringResource(R.string.minimum_characters), password.length >= 8
                     )
                     PasswordPolicy(
-                        "Contains an uppercase character", password.any { it.isUpperCase() }
+                        stringResource(R.string.uppercase_characters),
+                        password.any { it.isUpperCase() }
                     )
                     PasswordPolicy(
-                        "Contains a lowercase character", password.any { it.isLowerCase() }
+                        stringResource(R.string.lowercase_characters),
+                        password.any { it.isLowerCase() }
                     )
                     PasswordPolicy(
-                        "Contains a special character", password.any { !it.isLetterOrDigit() }
+                        stringResource(R.string.special_characters),
+                        password.any { !it.isLetterOrDigit() }
                     )
                     PasswordPolicy(
-                        "Contains a numeric character", password.any { it.isDigit() }
+                        stringResource(R.string.numeric_characters), password.any { it.isDigit() }
                     )
                 }
             }

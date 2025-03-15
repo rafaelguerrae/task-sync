@@ -6,8 +6,8 @@
     <string name="sign_up">Regístrate</string>
 
     <string name="sign_in">Iniciar sesión</string>
-    <string name="signing_in">Iniciando sesión...</string>
-    <string name="signing_up">Registrando...</string>
+    <string name="signing_in">Iniciando sesión…</string>
+    <string name="signing_up">Registrando…</string>
 
     <string name="next_step">Siguiente paso</string>
     <string name="type_full_name">Escribe tu nombre completo</string>
@@ -64,10 +64,15 @@
     <string name="reset_message">Recibirá un correo electrónico para cambiar su contraseña para esta cuenta</string>
     <string name="email_verify_message">Revise su correo electrónico para validar su cuenta.</string>
     <string name="email_verify_message2">Si ya lo ha hecho, puede hacer clic en el botón que aparece a continuación.</string>
-    <string name="resend_email">Reenviar correo electrónico</string>
+    <string name="resend">Reenviar</string>
     <string name="done">Hecho</string>
     <string name="sending">Enviando…</string>
     <string name="reset_password_ok">Correo electrónico para restablecer contraseña enviado a tu correo electrónico</string>
     <string name="reset_password_error">ERROR: Verifica el correo electrónico proporcionado</string>
     <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="didnt_receive_email">¿No recibiste el correo electrónico?</string>
+    <string name="or">o</string>
+    <string name="change_email">Cambiar correo electrónico</string>
+    <string name="fill_the_fields">Por favor, rellene el campo correctamente.</string>
+    <string name="network_error">ERROR: La llamada de red no se realizó correctamente.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.guerra.tasksync.screen.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +61,8 @@ fun ResetPasswordScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
+    var hasSent by remember { mutableStateOf(false) }
+    var hasSentResend by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
 
@@ -66,6 +70,16 @@ fun ResetPasswordScreen(
     val resetPasswordErrorMessage = stringResource(R.string.reset_password_error)
     val resetPasswordText = stringResource(R.string.reset_password)
     val sendingText = stringResource(R.string.sending)
+    val fillTheFields = stringResource(R.string.fill_the_fields)
+
+    var timerSeconds by remember { mutableStateOf(0) }
+
+    if (timerSeconds > 0) {
+        LaunchedEffect(timerSeconds) {
+            kotlinx.coroutines.delay(1000L)
+            timerSeconds--
+        }
+    }
 
     val isEmailFilled by remember {
         derivedStateOf {
@@ -75,15 +89,15 @@ fun ResetPasswordScreen(
 
     val resetPassword: (String) -> Unit = { emailToReset ->
         viewModel.sendPasswordResetEmail(emailToReset) { success ->
-            if(success){
+            if (success) {
                 coroutineScope.launch {
                     snackBarHostState.showSnackbar(
-                        message = resetPasswordOkMessage,
+                        message = "$resetPasswordOkMessage: $email",
                         withDismissAction = true
                     )
                 }
-            }
-            else{
+                hasSent = true
+            } else {
                 coroutineScope.launch {
                     snackBarHostState.showSnackbar(
                         message = resetPasswordErrorMessage,
@@ -101,7 +115,7 @@ fun ResetPasswordScreen(
                 modifier = Modifier.imePadding()
             )
         }
-    ) { padding->
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,8 +149,53 @@ fun ResetPasswordScreen(
                     onEmailChange = { email = it },
                     focusManager = focusManager,
                     onResetClick = resetPassword,
-                    isLoading = isLoading
+                    isLoading = isLoading,
+                    hasSent = hasSent
                 )
+
+                if (hasSent) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp, bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                        Text(
+                            text = stringResource(R.string.didnt_receive_email),
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        Text(
+                            text = if (timerSeconds > 0) stringResource(R.string.resend) + " in $timerSeconds s" else stringResource(R.string.resend),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = if (timerSeconds > 0) Color.Gray else colorResource(R.color.blue),
+                            modifier = Modifier.clickable(enabled = timerSeconds == 0) {
+                                resetPassword(email)
+                                timerSeconds = 120
+                            }
+                        )
+                    }
+
+                    Text(
+                        text = stringResource(R.string.or),
+                        fontSize = 14.sp
+                    )
+
+                    Text(
+                        text = stringResource(R.string.change_email),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = colorResource(R.color.blue),
+                        modifier = Modifier.clickable {
+                            hasSent = false
+                            email = ""
+                        }.padding(top = 8.dp)
+                    )
+                }
             }
 
 
@@ -155,7 +214,8 @@ fun ResetPasswordScreen(
                     else {
                         coroutineScope.launch {
                             snackBarHostState.showSnackbar(
-                                message = "Please fill the field correctly", withDismissAction = true
+                                message = fillTheFields,
+                                withDismissAction = true
                             )
                         }
                     }
@@ -165,7 +225,7 @@ fun ResetPasswordScreen(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !isLoading && isEmailFilled
+                enabled = !isLoading && isEmailFilled && !hasSent
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -201,7 +261,8 @@ fun ResetPasswordEmail(
     onEmailChange: (String) -> Unit,
     onResetClick: (String) -> Unit,
     focusManager: FocusManager,
-    isLoading: Boolean
+    isLoading: Boolean,
+    hasSent: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -229,7 +290,7 @@ fun ResetPasswordEmail(
                     onResetClick(email)
                 }
             ),
-            enabled = !isLoading
+            enabled = !isLoading && !hasSent
         )
     }
 

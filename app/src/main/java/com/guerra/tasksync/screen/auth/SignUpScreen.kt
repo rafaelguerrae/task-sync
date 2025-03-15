@@ -70,7 +70,7 @@ fun SignUpScreen(
     onSignUpClick: (String, String, String) -> Unit,
     viewModel: AuthViewModel
 ) {
-    var step by remember { mutableIntStateOf(0) }
+    var step by remember { mutableIntStateOf(1) }
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

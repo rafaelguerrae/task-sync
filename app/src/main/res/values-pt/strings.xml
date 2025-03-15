@@ -6,12 +6,12 @@
     <string name="sign_up">Cadastre-se</string>
 
     <string name="sign_in">Entrar</string>
-    <string name="signing_in">Entrando...</string>
-    <string name="signing_up">Cadastrando...</string>
+    <string name="signing_in">Entrando…</string>
+    <string name="signing_up">Cadastrando…</string>
 
     <string name="next_step">Próximo passo</string>
     <string name="type_full_name">Digite seu nome completo</string>
-    <string name="type_email">Digite seu e-mail</string>
+    <string name="type_email">Digite seu email</string>
     <string name="create_password">Crie sua senha</string>
     <string name="password">Senha</string>
     <string name="email">nome@mail.com</string>
@@ -52,7 +52,7 @@
     <string name="exit">Sair</string>
     <string name="your_sign_up_is_in_progress">Seu cadastro está em progresso. Tem certeza que deseja sair?</string>
     <string name="no_fullname">Sem nome completo</string>
-    <string name="no_email">Nenhum e-mail</string>
+    <string name="no_email">Nenhum email</string>
     <string name="reset_password">Redefinir senha</string>
     <string name="reset_password_description">Você pode alterar sua senha por e-mail</string>
     <string name="minimum_characters">Mínimo de 8 caracteres</string>
@@ -64,10 +64,15 @@
     <string name="reset_message">Você receberá um e-mail para alterar sua senha para esta conta</string>
     <string name="email_verify_message">Verifique seu e-mail para validar sua conta.</string>
     <string name="email_verify_message2">Se você já fez isso, pode clicar no botão abaixo.</string>
-    <string name="resend_email">Reenviar e-mail</string>
+    <string name="resend">Reenviar</string>
     <string name="done">Concluído</string>
     <string name="sending">Enviando…</string>
-    <string name="reset_password_ok">E-mail de redefinição de senha enviado para seu e-mail</string>
-    <string name="reset_password_error">ERRO: Verifique o e-mail fornecido</string>
+    <string name="reset_password_ok">Email de redefinição de senha enviado para seu e-mail</string>
+    <string name="reset_password_error">ERRO: Verifique o email fornecido</string>
     <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="didnt_receive_email">Não recebeu o email?</string>
+    <string name="or">ou</string>
+    <string name="change_email">Alterar e-mail</string>
+    <string name="fill_the_fields">Por favor, preencha o campo corretamente</string>
+    <string name="network_error">ERRO: A chamada de rede não ocorreu corretamente</string>
 </resources>

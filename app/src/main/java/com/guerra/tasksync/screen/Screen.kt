@@ -4,6 +4,7 @@ sealed class Screen(val route:String){
     object InitialScreen:Screen("initial")
     object SignInScreen:Screen("sign_in")
     object SignUpScreen:Screen("sign_up")
+    object ResetPasswordScreen:Screen("reset_password")
 
     object MainScreen:Screen("main_screen")
     object HomeScreen:Screen("home")

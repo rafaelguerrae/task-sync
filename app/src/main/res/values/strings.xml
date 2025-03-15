@@ -6,8 +6,8 @@
     <string name="sign_up">Sign up</string>
     <string name="sign_in">Sign in</string>
 
-    <string name="signing_in">Signing in...</string>
-    <string name="signing_up">Signing up...</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="signing_up">Signing up…</string>
 
     <string name="next_step">Next step</string>
     <string name="type_full_name">Type your full name</string>
@@ -67,4 +67,8 @@
     <string name="email_verify_message2">If you have done it already, you can click the button bellow.</string>
     <string name="resend_email">Resend e-mail</string>
     <string name="done">Done</string>
+    <string name="sending">Sending…</string>
+    <string name="reset_password_ok">Reset password email sent to your e-mail</string>
+    <string name="reset_password_error">ERROR: Verify the provided email</string>
+    <string name="forgot_password">Forgot password?</string>
 </resources>

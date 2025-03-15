@@ -7,9 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.guerra.tasksync.data.SignInResult
 import com.guerra.tasksync.data.SignInState
 import com.guerra.tasksync.data.UserData
@@ -107,8 +105,6 @@ class AuthViewModel @Inject constructor(
                         }
                     }
                 }
-
-                sendEmailVerification(user ?: return@launch)
                 Log.d("AuthViewModel", "Sign up process complete")
             } catch (e: Exception) {
                 _signInState.update { currentState ->
@@ -174,19 +170,8 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun sendEmailVerification(user: FirebaseUser){
-        viewModelScope.launch {
-            val result = userRepository.sendEmailVerification(user)
-            if (result.isSuccess) {
-                Log.d("AuthViewModel", "Email verification sent successfully")
-            }
-            else{
-                Log.e("AuthViewModel", "Email verification gone wrong", result.exceptionOrNull())
-            }
-        }
-    }
-
     fun sendPasswordResetEmail(email: String, onResult: (Boolean) -> Unit){
+        _loading.value = true
         viewModelScope.launch {
             val result = userRepository.sendPasswordResetEmail(email = email)
             if (result.isSuccess) {
@@ -197,6 +182,7 @@ class AuthViewModel @Inject constructor(
                 Log.e("AuthViewModel", "Password reset email gone wrong", result.exceptionOrNull())
                 onResult(false)
             }
+            _loading.value = false
         }
     }
 

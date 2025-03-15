@@ -66,4 +66,8 @@
     <string name="email_verify_message2">Se você já fez isso, pode clicar no botão abaixo.</string>
     <string name="resend_email">Reenviar e-mail</string>
     <string name="done">Concluído</string>
+    <string name="sending">Enviando…</string>
+    <string name="reset_password_ok">E-mail de redefinição de senha enviado para seu e-mail</string>
+    <string name="reset_password_error">ERRO: Verifique o e-mail fornecido</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
 </resources>

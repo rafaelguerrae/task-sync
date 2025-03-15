@@ -1,7 +1,6 @@
 package com.guerra.tasksync.screen.auth
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +18,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -34,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -50,7 +45,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -58,25 +52,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.airbnb.lottie.compose.LottieAnimatable
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.guerra.tasksync.R
 import com.guerra.tasksync.viewmodel.AuthViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -94,7 +79,6 @@ fun SignUpScreen(
     val maxSteps = 3
 
     val isLoading by viewModel.loading.collectAsStateWithLifecycle()
-    val firebaseUser = viewModel.currentUser
 
     val isPasswordCorrect = password.length >= 8 &&
             password.any { it.isUpperCase() } &&
@@ -173,14 +157,6 @@ fun SignUpScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 when (step) {
-                    0 -> VerifyEmailStep(
-                        onResendClick = {
-                            if (firebaseUser != null) {
-                                viewModel.sendEmailVerification(firebaseUser)
-                            }
-                        }
-                    )
-
                     1 -> SignUpFullNameStep(
                         fullName = fullName,
                         onFullNameChange = { fullName = it },
@@ -289,46 +265,6 @@ fun SignUpScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun VerifyEmailStep(
-    onResendClick: () -> Unit
-) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.email_animation))
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LottieAnimation(composition = composition, speed = 1.2f, modifier = Modifier.size(250.dp))
-
-        Text(
-            modifier = Modifier.clickable {
-                onResendClick()
-            },
-            text = stringResource(R.string.resend_email),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
-        )
-
-        Spacer(modifier = Modifier.size(30.dp))
-
-        Text(
-            text = stringResource(R.string.email_verify_message),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-        Text(
-            text = stringResource(R.string.email_verify_message2),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Light,
-            fontSize = 12.sp
-        )
     }
 }
 

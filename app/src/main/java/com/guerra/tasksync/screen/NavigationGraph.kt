@@ -2,7 +2,6 @@ package com.guerra.tasksync.screen
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,11 +15,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.guerra.tasksync.screen.auth.InitialScreen
+import com.guerra.tasksync.screen.auth.ResetPasswordScreen
 import com.guerra.tasksync.screen.auth.SignInScreen
 import com.guerra.tasksync.screen.auth.SignUpScreen
 import com.guerra.tasksync.screen.main.MainScreen
-import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import com.guerra.tasksync.viewmodel.AuthViewModel
+import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 
 @Composable
@@ -125,7 +125,18 @@ fun NavigationGraph(
                     onFinish = { navController.popBackStack() },
                     onSignInClick = { email, password ->
                         viewModel.signInWithEmail(email, password)
+                    },
+                    onResetClick = {
+                        navController.navigate(Screen.ResetPasswordScreen.route)
                     }
+                )
+            }
+
+            composable(Screen.ResetPasswordScreen.route){
+
+                ResetPasswordScreen(
+                    onFinish = { navController.popBackStack() },
+                    viewModel = viewModel
                 )
             }
         }

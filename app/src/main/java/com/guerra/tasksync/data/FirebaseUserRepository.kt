@@ -75,20 +75,6 @@ class FirebaseUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun sendEmailVerification(user: FirebaseUser): Result<Unit> {
-        return try {
-
-                user.sendEmailVerification().await()
-                Log.d("UserRepository", "Verification email sent.")
-            Log.e("UserRepository", "No user logged in.")
-
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e("UserRepository", "Failed to send verification email: ${e.message}")
-            Result.failure(e)
-        }
-    }
-
     override suspend fun sendPasswordResetEmail(
         email: String
     ): Result<Unit> {

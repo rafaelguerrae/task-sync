@@ -1,6 +1,5 @@
 package com.guerra.tasksync.screen.auth
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +17,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -31,17 +28,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -50,8 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,35 +51,46 @@ import com.guerra.tasksync.R
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun SignInScreen(
+fun ResetPasswordScreen(
     onFinish: () -> Unit,
-    onSignInClick: (String, String) -> Unit,
-    onResetClick: () -> Unit,
     viewModel: AuthViewModel
 ) {
-
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val isLoading by viewModel.loading.collectAsStateWithLifecycle()
-    val state by viewModel.signInState.collectAsStateWithLifecycle()
-    val focusManager = LocalFocusManager.current
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    var email by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    val isLoading by viewModel.loading.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state) {
-        if (state.signInErrorMessage != null) {
-            snackBarHostState.showSnackbar(
-                message = state.signInErrorMessage ?: "",
-                withDismissAction = true
-            )
+    val resetPasswordOkMessage = stringResource(R.string.reset_password_ok)
+    val resetPasswordErrorMessage = stringResource(R.string.reset_password_error)
+    val resetPasswordText = stringResource(R.string.reset_password)
+    val sendingText = stringResource(R.string.sending)
+
+    val isEmailFilled by remember {
+        derivedStateOf {
+            email.isNotEmpty()
         }
     }
 
-    val areTextFieldsFilled by remember {
-        derivedStateOf {
-            email.isNotEmpty() && password.isNotEmpty()
+    val resetPassword: (String) -> Unit = { emailToReset ->
+        viewModel.sendPasswordResetEmail(emailToReset) { success ->
+            if(success){
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar(
+                        message = resetPasswordOkMessage,
+                        withDismissAction = true
+                    )
+                }
+            }
+            else{
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar(
+                        message = resetPasswordErrorMessage,
+                        withDismissAction = true
+                    )
+                }
+            }
         }
     }
 
@@ -98,8 +101,7 @@ fun SignInScreen(
                 modifier = Modifier.imePadding()
             )
         }
-    ) { padding ->
-
+    ) { padding->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -107,7 +109,6 @@ fun SignInScreen(
                 .verticalScroll(rememberScrollState())
                 .imePadding()
         ) {
-
             IconButton(
                 onClick = onFinish,
                 modifier = Modifier
@@ -123,52 +124,24 @@ fun SignInScreen(
             }
 
             Column(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SignInEmail(
+                ResetPasswordEmail(
                     email = email,
                     onEmailChange = { email = it },
                     focusManager = focusManager,
+                    onResetClick = resetPassword,
                     isLoading = isLoading
                 )
-
-                Spacer(modifier = Modifier.size(16.dp))
-
-                SignInPassword(
-                    password = password,
-                    onPasswordChange = { password = it },
-                    focusManager = focusManager,
-                    isLoading = isLoading,
-                    onSignInClick = {
-                        if (areTextFieldsFilled) onSignInClick(email, password)
-                    })
-
-                Spacer(modifier = Modifier.size(16.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp, top = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-
-                    Text(
-                        text = stringResource(R.string.forgot_password),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = colorResource(R.color.blue),
-                        modifier = Modifier.clickable {
-                            onResetClick()
-                        }
-                    )
-
-                }
             }
 
+
             Text(
-                text = stringResource(R.string.sign_in),
+                text = stringResource(R.string.reset_password),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 modifier = Modifier
@@ -178,15 +151,11 @@ fun SignInScreen(
 
             Button(
                 onClick = {
-                    if (areTextFieldsFilled)
-                        onSignInClick(
-                            email,
-                            password
-                        )
+                    if (isEmailFilled) resetPassword(email)
                     else {
                         coroutineScope.launch {
                             snackBarHostState.showSnackbar(
-                                message = "Please fill in all fields", withDismissAction = true
+                                message = "Please fill the field correctly", withDismissAction = true
                             )
                         }
                     }
@@ -196,7 +165,7 @@ fun SignInScreen(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !isLoading && areTextFieldsFilled
+                enabled = !isLoading && isEmailFilled
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -215,9 +184,7 @@ fun SignInScreen(
                     Spacer(modifier = Modifier.size(8.dp))
 
                     Text(
-                        text = if (!isLoading) stringResource(R.string.sign_in) else stringResource(
-                            R.string.signing_in
-                        ),
+                        text = if (!isLoading) resetPasswordText else sendingText,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -229,9 +196,10 @@ fun SignInScreen(
 }
 
 @Composable
-fun SignInEmail(
+fun ResetPasswordEmail(
     email: String,
     onEmailChange: (String) -> Unit,
+    onResetClick: (String) -> Unit,
     focusManager: FocusManager,
     isLoading: Boolean
 ) {
@@ -253,67 +221,17 @@ fun SignInEmail(
             keyboardOptions = KeyboardOptions(
                 autoCorrectEnabled = true,
                 keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
-            ),
-            enabled = !isLoading
-        )
-    }
-}
-
-@Composable
-fun SignInPassword(
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    focusManager: FocusManager,
-    isLoading: Boolean,
-    onSignInClick: () -> Unit
-) {
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.type_password)
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        TextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.password)) },
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
                     focusManager.clearFocus()
-                    onSignInClick()
+                    onResetClick(email)
                 }
             ),
-            trailingIcon = {
-                val image =
-                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                val description =
-                    if (passwordVisible) stringResource(R.string.hide_password) else stringResource(
-                        R.string.show_password
-                    )
-
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description)
-                }
-            },
             enabled = !isLoading
         )
     }
+
+
 }

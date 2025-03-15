@@ -66,4 +66,8 @@
     <string name="email_verify_message2">Si ya lo ha hecho, puede hacer clic en el botón que aparece a continuación.</string>
     <string name="resend_email">Reenviar correo electrónico</string>
     <string name="done">Hecho</string>
+    <string name="sending">Enviando…</string>
+    <string name="reset_password_ok">Correo electrónico para restablecer contraseña enviado a tu correo electrónico</string>
+    <string name="reset_password_error">ERROR: Verifica el correo electrónico proporcionado</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
 </resources>

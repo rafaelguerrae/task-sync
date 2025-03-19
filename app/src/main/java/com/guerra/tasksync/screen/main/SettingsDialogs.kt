@@ -203,6 +203,85 @@ fun ResetPasswordDialog(
 
 
 @Composable
+fun ThemeSelectionDialog(
+    currentTheme: String,
+    onThemeSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val darkTheme = stringResource(R.string.dark_theme)
+    val lightTheme = stringResource(R.string.light_theme)
+    val useDeviceSettings = stringResource(R.string.use_device_settings)
+    val themes = listOf(darkTheme, lightTheme, useDeviceSettings)
+
+    var selectedTheme by remember { mutableStateOf(currentTheme) }
+
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.select_language)) },
+        text = {
+            Column {
+                themes.forEach { theme ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable {
+                                selectedTheme = when (theme) {
+                                    darkTheme -> "en"
+                                    lightTheme -> "pt"
+                                    else -> "es"
+                                }
+                            }
+                    ) {
+                        RadioButton(
+                            selected = (selectedTheme == when (theme) {
+                                darkTheme -> "en"
+                                lightTheme -> "pt"
+                                else -> "es"
+                            }),
+                            onClick = {
+                                selectedTheme = when (theme) {
+                                    darkTheme -> "en"
+                                    lightTheme -> "pt"
+                                    else -> "es"
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = theme)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onThemeSelected(selectedTheme)
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss, colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+
+@Composable
 fun LanguageSelectionDialog(
     currentLanguage: String,
     onLanguageSelected: (String) -> Unit,

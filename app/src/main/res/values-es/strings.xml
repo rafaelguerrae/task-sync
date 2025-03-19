@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">TaskSync</string>
-    <string name="web_client_id">77896509526-ciukmaiek70m80ad847maoes5sbjegsr.apps.googleusercontent.com</string>
 
     <string name="dont_have_account">¿No tienes una cuenta?</string>
     <string name="sign_up">Regístrate</string>
@@ -75,4 +73,11 @@
     <string name="change_email">Cambiar correo electrónico</string>
     <string name="fill_the_fields">Por favor, rellene el campo correctamente.</string>
     <string name="network_error">ERROR: La llamada de red no se realizó correctamente.</string>
+    <string name="my_teams">Mis equipos</string>
+    <string name="members">miembros</string>
+    <string name="no_notifications">Aún no tienes notificaciones.</string>
+    <string name="no_teams">Aún no tienes equipos.</string>
+    <string name="dark_theme">Oscuro</string>
+    <string name="light_theme">Claro</string>
+    <string name="use_device_settings">Usar la configuración del dispositivo</string>
 </resources>

@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">TaskSync</string>
-    <string name="web_client_id">77896509526-ciukmaiek70m80ad847maoes5sbjegsr.apps.googleusercontent.com</string>
+    <string name="app_name" translatable="false">TaskSync</string>
+    <string name="web_client_id" translatable="false">77896509526-ciukmaiek70m80ad847maoes5sbjegsr.apps.googleusercontent.com</string>
 
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
@@ -55,7 +55,7 @@
     <string name="no_fullname">No full name</string>
     <string name="no_email">No email</string>
     <string name="reset_password">Reset password</string>
-    <string name="reset_password_description">You can change your password by -mail</string>
+    <string name="reset_password_description">You can change your password by email</string>
     <string name="uppercase_characters">Contains an uppercase character</string>
     <string name="lowercase_characters">Contains a lowercase character</string>
     <string name="special_characters">Contains a special character</string>
@@ -76,4 +76,11 @@
     <string name="change_email">Change email</string>
     <string name="fill_the_fields">Please fill the field correctly</string>
     <string name="network_error">ERROR: Network call didn\'t occur correctly</string>
+    <string name="my_teams">My teams</string>
+    <string name="members">members</string>
+    <string name="no_notifications">You don´t have any notifications yet.</string>
+    <string name="no_teams">You don´t have any teams yet.</string>
+    <string name="dark_theme">Dark</string>
+    <string name="light_theme">Light</string>
+    <string name="use_device_settings">Use device settings</string>
 </resources>

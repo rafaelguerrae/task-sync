@@ -46,15 +46,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.guerra.tasksync.R
-import com.guerra.tasksync.data.UserData
+import com.guerra.tasksync.data.User
 import com.guerra.tasksync.screen.Screen
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
+import com.guerra.tasksync.viewmodel.TeamsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class BottomNavigationItem(
     val title: String,
@@ -65,25 +64,27 @@ data class BottomNavigationItem(
     val badgeCount: Int? = null
 )
 
-
 @Composable
 fun MainScreen(
     context: Context,
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient,
     coroutineScope: CoroutineScope,
-    viewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    teamsViewModel: TeamsViewModel
 ) {
     val bottomNavController = rememberNavController()
     val isDarkTheme = isSystemInDarkTheme()
     var screenName by remember { mutableStateOf("") }
 
-    val userData by viewModel.userData.collectAsStateWithLifecycle()
-    val firebaseUser = viewModel.currentUser
+    val userData by authViewModel.userData.collectAsStateWithLifecycle()
+    val teamsData by teamsViewModel.teamsData.collectAsStateWithLifecycle()
+    val firebaseUser = authViewModel.currentUser
 
     LaunchedEffect(googleAuthUiClient.getSignedInUser()?.userId) {
         googleAuthUiClient.getSignedInUser()?.userId?.let { userId ->
-            viewModel.loadUserData(userId)
+            authViewModel.loadUserData(userId)
+            teamsViewModel.getTeams(userId)
         }
     }
 
@@ -98,12 +99,15 @@ fun MainScreen(
             composable(Screen.HomeScreen.route) {
                 screenName = stringResource(R.string.app_name)
                 HomeScreen(
-                    userData = userData
+                    userData = userData,
+                    teamsData = teamsData
                 )
             }
             composable(Screen.TeamsScreen.route) {
                 screenName = stringResource(R.string.teams)
-                TeamsScreen()
+                TeamsScreen(
+                    teamsData = teamsData
+                )
             }
             composable(Screen.NotificationsScreen.route) {
                 screenName = stringResource(R.string.notifications)
@@ -113,7 +117,7 @@ fun MainScreen(
             composable(Screen.SettingsScreen.route) {
                 screenName = stringResource(R.string.settings)
                 SettingsScreen(
-                    userData = userData ?: UserData(),
+                    userData = userData ?: User(),
                     onSignOut = {
                         coroutineScope.launch {
                             googleAuthUiClient.signOut()
@@ -125,7 +129,7 @@ fun MainScreen(
                     },
                     onDelete = {
                         firebaseUser?.let { user ->
-                            viewModel.deleteUser(user) {
+                            authViewModel.deleteUser(user) {
                                 if (it) {
                                     coroutineScope.launch {
                                         googleAuthUiClient.signOut()
@@ -142,7 +146,7 @@ fun MainScreen(
                         }
 
                     },
-                    viewModel = viewModel
+                    viewModel = authViewModel
                 )
             }
         }
@@ -248,12 +252,17 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
                     BadgedBox(
                         badge = {
                             if (item.badgeCount != null) {
-                                Badge {
+                                Badge(
+                                    contentColor = Color.White,
+                                    containerColor = Color.Red
+                                ) {
                                     Text(text = item.badgeCount.toString())
 
                                 }
                             } else if (item.hasNews) {
-                                Badge()
+                                Badge(
+                                    containerColor = Color.Red
+                                )
                             }
                         }
                     ) {

@@ -21,18 +21,20 @@ import com.guerra.tasksync.screen.auth.SignUpScreen
 import com.guerra.tasksync.screen.main.MainScreen
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
+import com.guerra.tasksync.viewmodel.TeamsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    viewModel: AuthViewModel,
+    authViewModel: AuthViewModel,
+    teamsViewModel: TeamsViewModel,
     context: Context,
     startDestination: String,
     googleAuthUiClient: GoogleAuthUiClient
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val state by viewModel.signInState.collectAsStateWithLifecycle()
+    val state by authViewModel.signInState.collectAsStateWithLifecycle()
 
     NavHost(navController = navController, startDestination = startDestination) {
 
@@ -50,17 +52,17 @@ fun NavigationGraph(
                                 val signInResult = googleAuthUiClient.signInWithIntent(
                                     intent = result.data ?: return@launch
                                 )
-                                viewModel.onSignInResult(signInResult)
+                                authViewModel.onSignInResult(signInResult)
                             }
                         } else {
-                            viewModel.onSignInCancelled()
+                            authViewModel.onSignInCancelled()
                         }
                     }
                 )
 
                 LaunchedEffect(key1 = state.isSignInSuccessful) {
                     if (state.isSignInSuccessful) {
-                        viewModel.resetState()
+                        authViewModel.resetState()
                         navController.navigate("main") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
@@ -70,7 +72,7 @@ fun NavigationGraph(
 
                 InitialScreen(
                     state = state,
-                    viewModel = viewModel,
+                    viewModel = authViewModel,
                     onGoogleClick = {
                         coroutineScope.launch {
                             val signInIntentSender = googleAuthUiClient.signIn()
@@ -92,7 +94,7 @@ fun NavigationGraph(
             composable(Screen.SignUpScreen.route) {
                 LaunchedEffect(key1 = state.isSignInSuccessful) {
                     if (state.isSignInSuccessful) {
-                        viewModel.resetState()
+                        authViewModel.resetState()
                         navController.navigate("main") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
@@ -103,16 +105,16 @@ fun NavigationGraph(
                 SignUpScreen(
                     onFinish = { navController.popBackStack() },
                     onSignUpClick = { email, password, fullName ->
-                        viewModel.signUpWithEmail(email, password, fullName)
+                        authViewModel.signUpWithEmail(email, password, fullName)
                     },
-                    viewModel = viewModel
+                    viewModel = authViewModel
                 )
             }
 
             composable(Screen.SignInScreen.route) {
                 LaunchedEffect(key1 = state.isSignInSuccessful) {
                     if (state.isSignInSuccessful) {
-                        viewModel.resetState()
+                        authViewModel.resetState()
                         navController.navigate("main") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
@@ -121,10 +123,10 @@ fun NavigationGraph(
                 }
 
                 SignInScreen(
-                    viewModel = viewModel,
+                    viewModel = authViewModel,
                     onFinish = { navController.popBackStack() },
                     onSignInClick = { email, password ->
-                        viewModel.signInWithEmail(email, password)
+                        authViewModel.signInWithEmail(email, password)
                     },
                     onResetClick = {
                         navController.navigate(Screen.ResetPasswordScreen.route)
@@ -136,7 +138,7 @@ fun NavigationGraph(
 
                 ResetPasswordScreen(
                     onFinish = { navController.popBackStack() },
-                    viewModel = viewModel
+                    viewModel = authViewModel
                 )
             }
         }
@@ -151,7 +153,8 @@ fun NavigationGraph(
                     navController = navController,
                     googleAuthUiClient = googleAuthUiClient,
                     coroutineScope = coroutineScope,
-                    viewModel = viewModel
+                    authViewModel = authViewModel,
+                    teamsViewModel = teamsViewModel
                 )
             }
         }

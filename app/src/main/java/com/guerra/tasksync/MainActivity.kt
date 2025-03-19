@@ -20,6 +20,7 @@ import com.guerra.tasksync.screen.NavigationGraph
 import com.guerra.tasksync.ui.theme.TaskSyncTheme
 import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
+import com.guerra.tasksync.viewmodel.TeamsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,11 +49,13 @@ class MainActivity : ComponentActivity() {
 
                 Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
                     val navController = rememberNavController()
-                    val viewModel: AuthViewModel by viewModels()
+                    val authViewModel: AuthViewModel by viewModels()
+                    val teamsViewModel: TeamsViewModel by viewModels()
 
                     NavigationGraph(
                         navController = navController,
-                        viewModel = viewModel,
+                        authViewModel = authViewModel,
+                        teamsViewModel = teamsViewModel,
                         context = applicationContext,
                         startDestination = if (googleAuthUiClient.getSignedInUser() != null) "main" else "auth",
                         googleAuthUiClient = googleAuthUiClient)

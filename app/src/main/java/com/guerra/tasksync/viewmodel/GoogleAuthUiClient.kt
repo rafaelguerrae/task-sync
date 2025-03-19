@@ -11,7 +11,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.SignInResult
-import com.guerra.tasksync.data.UserData
+import com.guerra.tasksync.data.User
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -46,8 +46,8 @@ class GoogleAuthUiClient(
         }
     }
 
-    fun getSignedInUser(): UserData? = auth.currentUser?.run {
-        UserData(
+    fun getSignedInUser(): User? = auth.currentUser?.run {
+        User(
             userId = uid,
             fullName = displayName,
             profilePictureUrl = photoUrl?.toString(),
@@ -63,7 +63,7 @@ class GoogleAuthUiClient(
             val user = auth.signInWithCredential(googleCredentials).await().user
             SignInResult(
                 data = user?.run{
-                    UserData(
+                    User(
 
                         userId = uid,
                         fullName = displayName,

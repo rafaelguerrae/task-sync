@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.guerra.tasksync.data.SignInResult
 import com.guerra.tasksync.data.SignInState
-import com.guerra.tasksync.data.UserData
+import com.guerra.tasksync.data.User
 import com.guerra.tasksync.data.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +32,8 @@ class AuthViewModel @Inject constructor(
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    private val _userData = MutableStateFlow<UserData?>(null)
-    val userData: StateFlow<UserData?> = _userData.asStateFlow()
+    private val _userData = MutableStateFlow<User?>(null)
+    val userData: StateFlow<User?> = _userData.asStateFlow()
 
     val currentUser: FirebaseUser?
         get() = auth.currentUser
@@ -83,7 +83,7 @@ class AuthViewModel @Inject constructor(
                 val user = authResult.user
                 val initial = fullName.first().lowercase()
                 val userData = user?.let {
-                    UserData(
+                    User(
                         userId = it.uid,
                         fullName = fullName,
                         profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/$initial.png",
@@ -140,7 +140,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getCurrentUserData(userId: String): UserData? {
+    private suspend fun getCurrentUserData(userId: String): User? {
         return try {
             val result = userRepository.getUser(userId)
             if (result.isSuccess) {
@@ -149,7 +149,7 @@ class AuthViewModel @Inject constructor(
                 null
             }
         } catch (e: Exception) {
-            UserData()
+            User()
         }
 
     }
@@ -161,7 +161,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private suspend fun syncUser(userData: UserData): Result<Unit> {
+    private suspend fun syncUser(userData: User): Result<Unit> {
         val userDoc = firestore.collection("users").document(userData.userId).get().await()
         return if (userDoc.exists()) {
             userRepository.updateUser(userData)

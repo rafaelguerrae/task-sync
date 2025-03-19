@@ -1,7 +1,7 @@
 package com.guerra.tasksync.data
 
 data class SignInResult(
-    val data: UserData?,
+    val data: User?,
     val errorMessage: String?
 )
 
@@ -10,7 +10,7 @@ data class SignInState(
     val signInErrorMessage: String? = null
 )
 
-data class UserData(
+data class User(
     val userId: String = "",
     val fullName: String? = null,
     val profilePictureUrl: String? = null,

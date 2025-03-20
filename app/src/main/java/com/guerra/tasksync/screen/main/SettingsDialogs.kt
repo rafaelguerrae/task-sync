@@ -3,6 +3,7 @@ package com.guerra.tasksync.screen.main
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -201,7 +202,6 @@ fun ResetPasswordDialog(
     )
 }
 
-
 @Composable
 fun ThemeSelectionDialog(
     currentTheme: String,
@@ -218,7 +218,7 @@ fun ThemeSelectionDialog(
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.select_language)) },
+        title = { Text(text = stringResource(R.string.select_theme)) },
         text = {
             Column {
                 themes.forEach { theme ->
@@ -229,23 +229,23 @@ fun ThemeSelectionDialog(
                             .padding(vertical = 4.dp)
                             .clickable {
                                 selectedTheme = when (theme) {
-                                    darkTheme -> "en"
-                                    lightTheme -> "pt"
-                                    else -> "es"
+                                    darkTheme -> "dark"
+                                    lightTheme -> "light"
+                                    else -> "device"
                                 }
                             }
                     ) {
                         RadioButton(
                             selected = (selectedTheme == when (theme) {
-                                darkTheme -> "en"
-                                lightTheme -> "pt"
-                                else -> "es"
+                                darkTheme -> "dark"
+                                lightTheme -> "light"
+                                else -> "device"
                             }),
                             onClick = {
                                 selectedTheme = when (theme) {
-                                    darkTheme -> "en"
-                                    lightTheme -> "pt"
-                                    else -> "es"
+                                    darkTheme -> "dark"
+                                    lightTheme -> "light"
+                                    else -> "device"
                                 }
                             }
                         )
@@ -267,7 +267,8 @@ fun ThemeSelectionDialog(
         },
         dismissButton = {
             Button(
-                onClick = onDismiss, colors = ButtonColors(
+                onClick = onDismiss,
+                colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     disabledContainerColor = MaterialTheme.colorScheme.background,
@@ -365,7 +366,7 @@ fun updateLocale(context: Context, language: String) {
     val configuration = Configuration(context.resources.configuration)
     configuration.setLocale(locale)
 
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
     } else {
         context.resources.updateConfiguration(configuration, context.resources.displayMetrics)

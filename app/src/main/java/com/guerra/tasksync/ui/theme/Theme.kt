@@ -40,10 +40,17 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TaskSyncTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    appTheme: String,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (appTheme) {
+        "dark" -> true
+        "light" -> false
+        "device" -> isSystemInDarkTheme()
+        else -> isSystemInDarkTheme()
+    }
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

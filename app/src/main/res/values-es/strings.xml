@@ -39,9 +39,6 @@
     <string name="info">Información</string>
     <string name="info_description">Mira toda la información sobre la app</string>
     <string name="edit_profile">Editar perfil</string>
-    <string name="portuguese">Portugués</string>
-    <string name="spanish">Español</string>
-    <string name="english">Inglés</string>
     <string name="select_language">Seleccione el idioma</string>
     <string name="sign_out_message">¿Estás seguro de que quieres cerrar sesión?</string>
     <string name="type_password">Escribe tu contraseña</string>
@@ -80,4 +77,5 @@
     <string name="dark_theme">Oscuro</string>
     <string name="light_theme">Claro</string>
     <string name="use_device_settings">Usar la configuración del dispositivo</string>
+    <string name="select_theme">Seleccionar tema</string>
 </resources>

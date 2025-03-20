@@ -20,7 +20,7 @@
     <string name="show_password">Mostrar senha</string>
     <string name="hide_password">Ocultar senha</string>
 
-    <string name="sign_out">Sair</string>
+    <string name="sign_out">Encerrar sessão</string>
     <string name="enter_using_google">Entrar com o Google</string>
     <string name="sign_in_with_my_credentials">Entrar com minhas credenciais</string>
 
@@ -39,9 +39,6 @@
     <string name="info">Informações</string>
     <string name="info_description">Veja todas as informações sobre o app</string>
     <string name="edit_profile">Editar perfil</string>
-    <string name="english">Inglês</string>
-    <string name="portuguese">Português</string>
-    <string name="spanish">Espanhol</string>
     <string name="select_language">Selecione o idioma</string>
     <string name="sign_out_message">Tem certeza que deseja sair?</string>
     <string name="type_password">Escreva sua senha</string>
@@ -49,7 +46,6 @@
     <string name="cancel">Cancelar</string>
     <string name="exit">Sair</string>
     <string name="your_sign_up_is_in_progress">Seu cadastro está em progresso. Tem certeza que deseja sair?</string>
-    <string name="no_fullname">Sem nome completo</string>
     <string name="no_email">Nenhum email</string>
     <string name="reset_password">Redefinir senha</string>
     <string name="reset_password_description">Você pode alterar sua senha por email</string>
@@ -80,4 +76,6 @@
     <string name="dark_theme">Escuro</string>
     <string name="light_theme">Claro</string>
     <string name="use_device_settings">Usar configurações do dispositivo</string>
+    <string name="no_fullname">Nenhum nome completo</string>
+    <string name="select_theme">Selecione o tema</string>
 </resources>

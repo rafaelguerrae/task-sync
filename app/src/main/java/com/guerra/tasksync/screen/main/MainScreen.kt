@@ -74,8 +74,16 @@ fun MainScreen(
     teamsViewModel: TeamsViewModel
 ) {
     val bottomNavController = rememberNavController()
-    val isDarkTheme = isSystemInDarkTheme()
     var screenName by remember { mutableStateOf("") }
+
+    fun getAppTheme(context: Context): String {
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return prefs.getString("theme_code", "device") ?: "device"
+    }
+
+    val appTheme by remember { mutableStateOf(getAppTheme(context)) }
+
+    val isDarkTheme = if(appTheme == "dark") true else if(appTheme == "light") false else isSystemInDarkTheme()
 
     val userData by authViewModel.userData.collectAsStateWithLifecycle()
     val teamsData by teamsViewModel.teamsData.collectAsStateWithLifecycle()

@@ -26,10 +26,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationGraph(
+    context: Context,
     navController: NavHostController,
     authViewModel: AuthViewModel,
     teamsViewModel: TeamsViewModel,
-    context: Context,
     startDestination: String,
     googleAuthUiClient: GoogleAuthUiClient
 ) {

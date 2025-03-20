@@ -1,5 +1,7 @@
 package com.guerra.tasksync.screen.main
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.recreate
 import coil.compose.SubcomposeAsyncImage
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.User
@@ -70,7 +73,23 @@ fun SettingsScreen(
     onDelete: () -> Unit,
     viewModel: AuthViewModel
 ) {
+
     val context = LocalContext.current
+
+
+    fun getSavedLanguage(context: Context): String {
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return prefs.getString("language_code", "en") ?: "en"
+    }
+
+    fun getAppTheme(context: Context): String {
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return prefs.getString("theme_code", "device") ?: "device"
+    }
+
+
+    val savedLanguage = remember { getSavedLanguage(context) }
+    var appTheme by remember { mutableStateOf(getAppTheme(context)) }
 
     val languagePresented = stringResource(R.string.language_description)
     val isDarkTheme = isSystemInDarkTheme()
@@ -101,23 +120,29 @@ fun SettingsScreen(
 
     if (showLanguageDialog) {
         LanguageSelectionDialog(
-            currentLanguage = appLanguage,
-            onLanguageSelected = { selected ->
-                appLanguage = selected
-                updateLocale(context, appLanguage)
+            currentLanguage = savedLanguage,
+            onLanguageSelected = { newLang ->
+                val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                prefs.edit().putString("language_code", newLang).apply()
+                appLanguage = newLang
+                updateLocale(context, newLang)
+                (context as? Activity)?.recreate()
                 showLanguageDialog = false
             },
             onDismiss = {
-                showLanguageDialog = false
-            }
+                showLanguageDialog = false }
         )
     }
 
     if (showThemeDialog) {
         ThemeSelectionDialog(
-            currentTheme = appLanguage,
+            currentTheme = appTheme,
             onThemeSelected = { selected ->
+                val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                prefs.edit().putString("theme_code", selected).apply()
+                appTheme = selected
                 showThemeDialog = false
+                (context as? Activity)?.recreate()
             },
             onDismiss = {
                 showThemeDialog = false
@@ -243,14 +268,12 @@ fun SettingsScreen(
                         minLines = 1
                     )
 
-                    Spacer(Modifier.size(12.dp))
-
-
+                    Spacer(Modifier.size(8.dp))
 
                         OutlinedButton(
                             onClick = {},
                             shape = RoundedCornerShape(16.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                             colors = ButtonColors(
                                 containerColor = Color.Transparent,
                                 contentColor = MaterialTheme.colorScheme.onSurface,
@@ -283,7 +306,7 @@ fun SettingsScreen(
                     action = {showThemeDialog = true},
                     icon = if(isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                     title = stringResource(R.string.theme),
-                    description = stringResource(R.string.theme_description)
+                    description = if (appTheme == "dark") stringResource(R.string.dark_theme) else if(appTheme == "light") stringResource(R.string.light_theme) else stringResource(R.string.theme_description)
                 )
 
                 SettingsItem(

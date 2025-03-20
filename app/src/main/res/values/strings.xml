@@ -42,9 +42,8 @@
     <string name="info">Info</string>
     <string name="info_description">See all the information about the app</string>
     <string name="edit_profile">Edit profile</string>
-    <string name="english">English</string>
-    <string name="portuguese">Portuguese</string>
-    <string name="spanish">Spanish</string>
+    <string name="english" translatable="false">English</string>
+    <string name="spanish" translatable="false">Español</string>
     <string name="select_language">Select the language</string>
     <string name="sign_out_message">Are you sure you want to sign out?</string>
     <string name="type_password">Type your password</string>
@@ -52,7 +51,6 @@
     <string name="cancel">Cancel</string>
     <string name="exit">Exit</string>
     <string name="your_sign_up_is_in_progress">Your sign up is in progress. Are you sure you want to leave?</string>
-    <string name="no_fullname">No full name</string>
     <string name="no_email">No email</string>
     <string name="reset_password">Reset password</string>
     <string name="reset_password_description">You can change your password by email</string>
@@ -83,4 +81,7 @@
     <string name="dark_theme">Dark</string>
     <string name="light_theme">Light</string>
     <string name="use_device_settings">Use device settings</string>
+    <string name="select_theme">Select theme</string>
+    <string name="portuguese" translatable="false">Português</string>
+    <string name="no_fullname">No full name</string>
 </resources>

@@ -142,16 +142,20 @@ fun ResetPasswordDialog(
         title = { if (!isPasswordDone) Text(text = stringResource(R.string.reset_password)) },
         text = {
             if (!isPasswordDone) Text(text = stringResource(R.string.reset_message))
-            else {    Column(modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center){
+            else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-                LottieAnimation(
-                    composition = composition,
-                    speed = 0.7f,
-                    modifier = Modifier.size(150.dp)
-                )
-            } }
+                    LottieAnimation(
+                        composition = composition,
+                        speed = 0.7f,
+                        modifier = Modifier.size(150.dp)
+                    )
+                }
+            }
         },
         confirmButton = {
             if (!isPasswordDone) {

@@ -1,5 +1,11 @@
 package com.guerra.tasksync.screen.auth
 
+import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,35 +17,55 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.guerra.tasksync.R
 import com.guerra.tasksync.data.SignInState
 import com.guerra.tasksync.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun InitialScreen(
+    appTheme: String,
+    context: Context,
     state: SignInState,
     onGoogleClick: () -> Unit,
     onSignInClick: () -> Unit,
@@ -55,115 +81,203 @@ fun InitialScreen(
         }
     }
 
-    val isDarkTheme = isSystemInDarkTheme()
-    val logoResId = if (isDarkTheme) {
-        R.drawable.tasksync_nobg_white
-    } else {
-        R.drawable.tasksync_nobg_black
+    val isDarkTheme = when (appTheme) {
+        "dark" -> true
+        "light" -> false
+        else -> isSystemInDarkTheme()
     }
+    val logoResId =
+        if (isDarkTheme) R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize().background(color = MaterialTheme.colorScheme.background)
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter(logoResId),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.Center)
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = {
-                    isLoading = true
-                    onGoogleClick()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !isLoading
-
+    val animationMap = mapOf(
+        R.raw.team_animation to stringResource(R.string.team_animation_message),
+        R.raw.woman_animation to stringResource(R.string.woman_animation_message),
+        R.raw.task_check_animation to stringResource(R.string.task_check_animation_message),
+        R.raw.pencil_tasks_animation to stringResource(R.string.pencil_tasks_animation_message)
+    )
+    Scaffold(
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
+                Button(
+                    onClick = {
+                        isLoading = true
+                        onGoogleClick()
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !isLoading
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp,
-                            trackColor = colorResource(R.color.blue)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                                trackColor = colorResource(R.color.blue)
+                            )
+                        }
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = if (isLoading) stringResource(R.string.signing_in)
+                            else stringResource(R.string.enter_using_google),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
+                }
 
-                    Spacer(modifier = Modifier.size(8.dp))
-
+                Button(
+                    onClick = onSignInClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text(
-                        text = if (isLoading) stringResource(R.string.signing_in) else stringResource(R.string.enter_using_google),
-                        fontWeight = FontWeight.Bold,
+                        text = stringResource(R.string.sign_in_with_my_credentials),
+                        fontWeight = FontWeight.Normal,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.dont_have_account),
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        text = stringResource(R.string.sign_up),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = colorResource(R.color.blue),
+                        modifier = Modifier.clickable { onSignUpClick() }
+                    )
+                }
             }
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(logoResId),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.size(120.dp)
+            )
+            Carousel(animationMap)
+        }
 
-            Button(
-                onClick = {
-                    onSignInClick()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sign_in_with_my_credentials),
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
+    }
+}
+
+@Composable
+fun Carousel(animationMap: Map<Int, String>) {
+    val compositions = animationMap.keys.map  { resId ->
+        rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
+    }
+
+    val pagerState = rememberPagerState(pageCount = { animationMap.size })
+    val coroutineScope = rememberCoroutineScope()
+
+    val descriptions = animationMap.keys.map { description ->
+        animationMap[description] ?: ""
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        ) { page ->
+            val compositionResult = compositions[page]
+            if (compositionResult.value != null) {
+                LottieAnimation(
+                    composition = compositionResult.value,
+                    iterations = LottieConstants.IterateForever,
+                    speed = 1f,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
                 )
             }
+        }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp, top = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
+        AnimatedContent(
+            targetState = descriptions[pagerState.currentPage],
+            transitionSpec = {
+                fadeIn(animationSpec = tween(100)) togetherWith fadeOut(animationSpec = tween(500))
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+        ) { target ->
+            Text(
+                text = target,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                minLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 
-                Text(
-                    text = stringResource(R.string.dont_have_account),
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Text(
-                    text = stringResource(R.string.sign_up),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = colorResource(R.color.blue),
-                    modifier = Modifier.clickable {
-                        onSignUpClick()
-                    }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            for (i in compositions.indices) {
+                val indicatorColor =
+                    if (pagerState.currentPage == i) Color.Gray else Color.LightGray
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(indicatorColor)
                 )
             }
+        }
+    }
+    LaunchedEffect(pagerState.currentPage) {
+        delay(10000L)
+        val nextPage = (pagerState.currentPage + 1) % compositions.size
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(nextPage)
         }
     }
 }

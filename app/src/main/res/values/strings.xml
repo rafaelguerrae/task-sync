@@ -84,4 +84,8 @@
     <string name="select_theme">Select theme</string>
     <string name="portuguese" translatable="false">Português</string>
     <string name="no_fullname">No full name</string>
+    <string name="team_animation_message">TaskSync fosters seamless team collaboration and communication.</string>
+    <string name="woman_animation_message">Stay organized with intelligent task tracking and analytics.</string>
+    <string name="task_check_animation_message">Boost productivity by streamlining your workflow.</string>
+    <string name="pencil_tasks_animation_message">Never miss a deadline with smart task management.</string>
 </resources>

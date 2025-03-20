@@ -2,6 +2,7 @@ package com.guerra.tasksync.screen
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
+import android.content.res.Resources.Theme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationGraph(
+    appTheme: String,
     context: Context,
     navController: NavHostController,
     authViewModel: AuthViewModel,
@@ -71,6 +73,8 @@ fun NavigationGraph(
                 }
 
                 InitialScreen(
+                    appTheme = appTheme,
+                    context = context,
                     state = state,
                     viewModel = authViewModel,
                     onGoogleClick = {
@@ -149,6 +153,7 @@ fun NavigationGraph(
         ) {
             composable(Screen.MainScreen.route) {
                 MainScreen(
+                    appTheme = appTheme,
                     context = context,
                     navController = navController,
                     googleAuthUiClient = googleAuthUiClient,

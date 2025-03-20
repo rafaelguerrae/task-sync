@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
                     val teamsViewModel: TeamsViewModel by viewModels()
 
                     NavigationGraph(
+                        appTheme = appTheme,
                         navController = navController,
                         authViewModel = authViewModel,
                         teamsViewModel = teamsViewModel,

@@ -66,6 +66,7 @@ data class BottomNavigationItem(
 
 @Composable
 fun MainScreen(
+    appTheme: String,
     context: Context,
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient,
@@ -75,13 +76,6 @@ fun MainScreen(
 ) {
     val bottomNavController = rememberNavController()
     var screenName by remember { mutableStateOf("") }
-
-    fun getAppTheme(context: Context): String {
-        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        return prefs.getString("theme_code", "device") ?: "device"
-    }
-
-    val appTheme by remember { mutableStateOf(getAppTheme(context)) }
 
     val isDarkTheme = if(appTheme == "dark") true else if(appTheme == "light") false else isSystemInDarkTheme()
 

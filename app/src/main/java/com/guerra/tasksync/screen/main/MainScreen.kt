@@ -1,6 +1,11 @@
 package com.guerra.tasksync.screen.main
 
+import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Resources
+import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -27,6 +32,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,12 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -67,7 +75,6 @@ data class BottomNavigationItem(
 @Composable
 fun MainScreen(
     appTheme: String,
-    context: Context,
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient,
     coroutineScope: CoroutineScope,
@@ -77,7 +84,10 @@ fun MainScreen(
     val bottomNavController = rememberNavController()
     var screenName by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+
     val isDarkTheme = if(appTheme == "dark") true else if(appTheme == "light") false else isSystemInDarkTheme()
+    val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     val userData by authViewModel.userData.collectAsStateWithLifecycle()
     val teamsData by teamsViewModel.teamsData.collectAsStateWithLifecycle()
@@ -122,11 +132,17 @@ fun MainScreen(
                     userData = userData ?: User(),
                     onSignOut = {
                         coroutineScope.launch {
+                            clearSharedPreferences(prefs)
+                            resetThemeToDeviceDefault()
+                            resetLanguageToDeviceDefault(context)
+
                             googleAuthUiClient.signOut()
                             navController.navigate("initial") {
                                 popUpTo(navController.graph.id) { inclusive = true }
                                 launchSingleTop = true
                             }
+
+                            (context as? Activity)?.recreate()
                         }
                     },
                     onDelete = {
@@ -213,7 +229,7 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
     )
 
     var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     NavigationBar(
@@ -277,5 +293,28 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
             )
 
         }
+    }
+}
+
+private fun clearSharedPreferences(prefs: SharedPreferences){
+    with(prefs.edit()) {
+        clear()
+        commit()
+    }
+}
+
+private fun resetThemeToDeviceDefault(){
+    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+}
+
+private fun resetLanguageToDeviceDefault(context: Context){
+    val defaultLocale = Resources.getSystem().configuration.locales[0]
+    val config = context.resources.configuration
+    config.setLocale(defaultLocale)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+    } else {
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }

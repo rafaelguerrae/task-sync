@@ -367,15 +367,12 @@ fun LanguageSelectionDialog(
 fun updateLocale(context: Context, language: String) {
     val locale = Locale(language)
     Locale.setDefault(locale)
-    val configuration = Configuration(context.resources.configuration)
-    configuration.setLocale(locale)
+    val config = Configuration(context.resources.configuration)
+    config.setLocale(locale)
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
     } else {
-        context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
-        if (context is Activity) {
-            context.recreate()
-        }
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }

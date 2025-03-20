@@ -193,14 +193,14 @@ fun InitialScreen(
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.size(120.dp)
             )
-            Carousel(animationMap)
+            Carousel(animationMap, isDarkTheme)
         }
 
     }
 }
 
 @Composable
-fun Carousel(animationMap: Map<Int, String>) {
+fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
     val compositions = animationMap.keys.map  { resId ->
         rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
     }
@@ -261,8 +261,10 @@ fun Carousel(animationMap: Map<Int, String>) {
             horizontalArrangement = Arrangement.Center
         ) {
             for (i in compositions.indices) {
-                val indicatorColor =
-                    if (pagerState.currentPage == i) Color.Gray else Color.LightGray
+                val indicatorColor = when {
+                    pagerState.currentPage == i -> if (isDarkTheme) Color.LightGray else Color.Gray
+                    else -> if (isDarkTheme) Color.Gray else Color.LightGray
+                }
                 Box(
                     modifier = Modifier
                         .padding(4.dp)

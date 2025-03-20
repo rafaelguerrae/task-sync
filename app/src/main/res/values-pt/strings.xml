@@ -78,4 +78,8 @@
     <string name="use_device_settings">Usar configurações do dispositivo</string>
     <string name="no_fullname">Nenhum nome completo</string>
     <string name="select_theme">Selecione o tema</string>
+    <string name="team_animation_message">O TaskSync promove colaboração e comunicação perfeitas em equipe.</string>
+    <string name="woman_animation_message">Mantenha-se organizado com rastreamento e análise de tarefas inteligentes.</string>
+    <string name="task_check_animation_message">Aumente a produtividade simplificando seu fluxo de trabalho.</string>
+    <string name="pencil_tasks_animation_message">Nunca perca um prazo com o gerenciamento inteligente de tarefas.</string>
 </resources>

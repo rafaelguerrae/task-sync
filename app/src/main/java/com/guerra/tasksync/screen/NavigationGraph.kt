@@ -154,7 +154,6 @@ fun NavigationGraph(
             composable(Screen.MainScreen.route) {
                 MainScreen(
                     appTheme = appTheme,
-                    context = context,
                     navController = navController,
                     googleAuthUiClient = googleAuthUiClient,
                     coroutineScope = coroutineScope,

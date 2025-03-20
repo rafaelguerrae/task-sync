@@ -78,4 +78,8 @@
     <string name="light_theme">Claro</string>
     <string name="use_device_settings">Usar la configuración del dispositivo</string>
     <string name="select_theme">Seleccionar tema</string>
+    <string name="team_animation_message">TaskSync fomenta la colaboración y la comunicación fluidas en equipo.</string>
+    <string name="woman_animation_message">Manténgase organizado con el seguimiento y análisis inteligentes de tareas.</string>
+    <string name="task_check_animation_message">Aumente la productividad optimizando su flujo de trabajo.</string>
+    <string name="pencil_tasks_animation_message">No se pierda ninguna fecha límite con la gestión inteligente de tareas.</string>
 </resources>

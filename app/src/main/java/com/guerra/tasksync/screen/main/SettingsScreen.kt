@@ -75,21 +75,12 @@ fun SettingsScreen(
 ) {
 
     val context = LocalContext.current
+    val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
-
-    fun getSavedLanguage(context: Context): String {
-        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        return prefs.getString("language_code", "en") ?: "en"
-    }
-
-    fun getAppTheme(context: Context): String {
-        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    fun getAppTheme(): String {
         return prefs.getString("theme_code", "device") ?: "device"
     }
-
-
-    val savedLanguage = remember { getSavedLanguage(context) }
-    var appTheme by remember { mutableStateOf(getAppTheme(context)) }
+    var appTheme by remember { mutableStateOf(getAppTheme()) }
 
     val languagePresented = stringResource(R.string.language_description)
     val isDarkTheme = isSystemInDarkTheme()
@@ -120,9 +111,8 @@ fun SettingsScreen(
 
     if (showLanguageDialog) {
         LanguageSelectionDialog(
-            currentLanguage = savedLanguage,
+            currentLanguage = appLanguage,
             onLanguageSelected = { newLang ->
-                val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
                 prefs.edit().putString("language_code", newLang).apply()
                 appLanguage = newLang
                 updateLocale(context, newLang)
@@ -138,7 +128,6 @@ fun SettingsScreen(
         ThemeSelectionDialog(
             currentTheme = appTheme,
             onThemeSelected = { selected ->
-                val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
                 prefs.edit().putString("theme_code", selected).apply()
                 appTheme = selected
                 showThemeDialog = false

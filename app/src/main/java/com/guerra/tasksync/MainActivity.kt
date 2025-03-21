@@ -19,9 +19,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.guerra.tasksync.screen.NavigationGraph
@@ -30,12 +32,16 @@ import com.guerra.tasksync.viewmodel.AuthViewModel
 import com.guerra.tasksync.viewmodel.GoogleAuthUiClient
 import com.guerra.tasksync.viewmodel.TeamsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private var loaded by mutableStateOf(false)
 
     override fun attachBaseContext(newBase: Context) {
         val prefs = newBase.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -55,8 +61,12 @@ class MainActivity : ComponentActivity() {
     lateinit var googleAuthUiClient: GoogleAuthUiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen().apply {
+            setKeepOnScreenCondition { !loaded }
+        }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
 
             val context = LocalContext.current
@@ -87,7 +97,9 @@ class MainActivity : ComponentActivity() {
                         teamsViewModel = teamsViewModel,
                         context = applicationContext,
                         startDestination = if (googleAuthUiClient.getSignedInUser() != null) "main" else "auth",
-                        googleAuthUiClient = googleAuthUiClient)
+                        googleAuthUiClient = googleAuthUiClient,
+                        onLoaded = { loaded = true }
+                    )
                 }
             }
         }

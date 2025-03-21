@@ -33,7 +33,8 @@ fun NavigationGraph(
     authViewModel: AuthViewModel,
     teamsViewModel: TeamsViewModel,
     startDestination: String,
-    googleAuthUiClient: GoogleAuthUiClient
+    googleAuthUiClient: GoogleAuthUiClient,
+    onLoaded: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val state by authViewModel.signInState.collectAsStateWithLifecycle()
@@ -92,7 +93,9 @@ fun NavigationGraph(
                     },
                     onSignUpClick = {
                         navController.navigate(Screen.SignUpScreen.route)
-                    })
+                    },
+                    onLoaded = onLoaded
+                )
             }
 
             composable(Screen.SignUpScreen.route) {
@@ -158,7 +161,8 @@ fun NavigationGraph(
                     googleAuthUiClient = googleAuthUiClient,
                     coroutineScope = coroutineScope,
                     authViewModel = authViewModel,
-                    teamsViewModel = teamsViewModel
+                    teamsViewModel = teamsViewModel,
+                    onLoaded = onLoaded
                 )
             }
         }

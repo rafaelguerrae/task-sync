@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
@@ -79,7 +80,8 @@ fun MainScreen(
     googleAuthUiClient: GoogleAuthUiClient,
     coroutineScope: CoroutineScope,
     authViewModel: AuthViewModel,
-    teamsViewModel: TeamsViewModel
+    teamsViewModel: TeamsViewModel,
+    onLoaded: () -> Unit
 ) {
     val bottomNavController = rememberNavController()
     var screenName by remember { mutableStateOf("") }
@@ -100,6 +102,10 @@ fun MainScreen(
         }
     }
 
+    LaunchedEffect(userData){
+        if(userData != null) onLoaded()
+    }
+
     Scaffold(
         topBar = { TopBar(screenName) },
         bottomBar = { BottomNavigationBar(isDarkTheme, bottomNavController) }
@@ -111,7 +117,7 @@ fun MainScreen(
             composable(Screen.HomeScreen.route) {
                 screenName = stringResource(R.string.app_name)
                 HomeScreen(
-                    userData = userData,
+                    userData = userData ?: User(),
                     teamsData = teamsData
                 )
             }

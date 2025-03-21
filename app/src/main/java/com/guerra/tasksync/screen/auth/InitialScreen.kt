@@ -1,6 +1,7 @@
 package com.guerra.tasksync.screen.auth
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionResult
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -70,8 +73,15 @@ fun InitialScreen(
     onGoogleClick: () -> Unit,
     onSignInClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    viewModel: AuthViewModel
+    viewModel: AuthViewModel,
+    onLoaded: () -> Unit
 ) {
+    val isDarkTheme = when (appTheme) {
+        "dark" -> true
+        "light" -> false
+        else -> isSystemInDarkTheme()
+    }
+    val logoResId = if (isDarkTheme) R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
     var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = state.isSignInSuccessful, key2 = state.signInErrorMessage) {
@@ -81,20 +91,23 @@ fun InitialScreen(
         }
     }
 
-    val isDarkTheme = when (appTheme) {
-        "dark" -> true
-        "light" -> false
-        else -> isSystemInDarkTheme()
-    }
-    val logoResId =
-        if (isDarkTheme) R.drawable.tasksync_nobg_white else R.drawable.tasksync_nobg_black
-
     val animationMap = mapOf(
         R.raw.team_animation to stringResource(R.string.team_animation_message),
         R.raw.woman_animation to stringResource(R.string.woman_animation_message),
         R.raw.task_check_animation to stringResource(R.string.task_check_animation_message),
         R.raw.pencil_tasks_animation to stringResource(R.string.pencil_tasks_animation_message)
     )
+    val compositions = animationMap.keys.map { resId ->
+        rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
+    }
+
+    val areCompositionsLoaded = compositions.all { it.value != null }
+
+    if (areCompositionsLoaded) {
+        LaunchedEffect(Unit) {
+            onLoaded()
+        }
+    }
     Scaffold(
         bottomBar = {
             Column(
@@ -147,7 +160,7 @@ fun InitialScreen(
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.onSurface
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp), enabled = !isLoading
                 ) {
                     Text(
                         text = stringResource(R.string.sign_in_with_my_credentials),
@@ -174,7 +187,7 @@ fun InitialScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         color = colorResource(R.color.blue),
-                        modifier = Modifier.clickable { onSignUpClick() }
+                        modifier = Modifier.clickable(enabled = !isLoading) { onSignUpClick() }
                     )
                 }
             }
@@ -193,24 +206,25 @@ fun InitialScreen(
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.size(120.dp)
             )
-            Carousel(animationMap, isDarkTheme)
+            Carousel(animationMap, isDarkTheme, compositions)
         }
 
     }
 }
 
 @Composable
-fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
-    val compositions = animationMap.keys.map  { resId ->
-        rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
-    }
+fun Carousel(
+    animationMap: Map<Int, String>,
+    isDarkTheme: Boolean,
+    compositions: List<LottieCompositionResult>
+){
+    val items = animationMap.entries.toList()
+    val itemCount = items.size
 
-    val pagerState = rememberPagerState(pageCount = { animationMap.size })
+    val pagerState = rememberPagerState(pageCount = { Int.MAX_VALUE })
     val coroutineScope = rememberCoroutineScope()
 
-    val descriptions = animationMap.keys.map { description ->
-        animationMap[description] ?: ""
-    }
+    val currentIndex = pagerState.currentPage % itemCount
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -222,7 +236,8 @@ fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
                 .fillMaxWidth()
                 .height(300.dp)
         ) { page ->
-            val compositionResult = compositions[page]
+            val index = page % itemCount
+            val compositionResult = compositions[index]
             if (compositionResult.value != null) {
                 LottieAnimation(
                     composition = compositionResult.value,
@@ -236,12 +251,11 @@ fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
         }
 
         AnimatedContent(
-            targetState = descriptions[pagerState.currentPage],
+            targetState = items[currentIndex].value,
             transitionSpec = {
-                fadeIn(animationSpec = tween(100)) togetherWith fadeOut(animationSpec = tween(500))
+                fadeIn(animationSpec = tween(1000)) togetherWith fadeOut(animationSpec = tween(500))
             },
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f)
         ) { target ->
             Text(
                 text = target,
@@ -257,13 +271,14 @@ fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = 4.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            for (i in compositions.indices) {
-                val indicatorColor = when {
-                    pagerState.currentPage == i -> if (isDarkTheme) Color.LightGray else Color.Gray
-                    else -> if (isDarkTheme) Color.Gray else Color.LightGray
+            for (i in 0 until itemCount) {
+                val indicatorColor = if (currentIndex == i) {
+                    if (isDarkTheme) Color.LightGray else Color.Gray
+                } else {
+                    if (isDarkTheme) Color.Gray else Color.LightGray
                 }
                 Box(
                     modifier = Modifier
@@ -275,9 +290,10 @@ fun Carousel(animationMap: Map<Int, String>, isDarkTheme: Boolean) {
             }
         }
     }
+
     LaunchedEffect(pagerState.currentPage) {
-        delay(10000L)
-        val nextPage = (pagerState.currentPage + 1) % compositions.size
+        delay(7000L)
+        val nextPage = pagerState.currentPage + 1
         coroutineScope.launch {
             pagerState.animateScrollToPage(nextPage)
         }

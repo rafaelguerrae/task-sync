@@ -1,6 +1,7 @@
 package com.guerra.tasksync.screen.main
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,8 @@ fun HomeScreen(
     userData: User,
     teamsData: List<Team>?
 ) {
+
+    BackHandler(enabled = true){}
 
     Box(
         modifier = Modifier

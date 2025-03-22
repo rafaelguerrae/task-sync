@@ -1,5 +1,6 @@
 package com.guerra.tasksync.screen.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,9 @@ import com.guerra.tasksync.data.Team
 fun TeamsScreen(
     teamsData: List<Team>?
 ) {
+
+    BackHandler(enabled = true){}
+
     var userHasTeam by remember { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()

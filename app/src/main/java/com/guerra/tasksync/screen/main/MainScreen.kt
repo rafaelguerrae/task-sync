@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
@@ -83,6 +84,7 @@ fun MainScreen(
     teamsViewModel: TeamsViewModel,
     onLoaded: () -> Unit
 ) {
+
     val bottomNavController = rememberNavController()
     var screenName by remember { mutableStateOf("") }
 

@@ -2,6 +2,7 @@ package com.guerra.tasksync.screen.main
 
 import android.app.Activity
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -73,6 +74,8 @@ fun SettingsScreen(
     onDelete: () -> Unit,
     viewModel: AuthViewModel
 ) {
+
+    BackHandler(enabled = true){}
 
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)

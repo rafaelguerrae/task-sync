@@ -294,12 +294,12 @@ fun SettingsScreen(
 
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.tertiary)
 
-                SettingsItem(
-                    action = {showThemeDialog = true},
-                    icon = if(isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
-                    title = stringResource(R.string.theme),
-                    description = if (appTheme == "dark") stringResource(R.string.dark_theme) else if(appTheme == "light") stringResource(R.string.light_theme) else stringResource(R.string.theme_description)
-                )
+//                SettingsItem(
+//                    action = {showThemeDialog = true},
+//                    icon = if(isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+//                    title = stringResource(R.string.theme),
+//                    description = if (appTheme == "dark") stringResource(R.string.dark_theme) else if(appTheme == "light") stringResource(R.string.light_theme) else stringResource(R.string.theme_description)
+//                )
 
                 SettingsItem(
                     action = {

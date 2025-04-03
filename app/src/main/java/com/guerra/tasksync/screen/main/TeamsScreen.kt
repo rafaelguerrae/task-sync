@@ -19,10 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -179,28 +181,28 @@ fun TeamItemColumn(
                         modifier = Modifier.size(8.dp)
                     )
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(15.dp),
-                            imageVector = Icons.Default.People,
-                            contentDescription = "Edit",
-                            tint = Color.Gray
-                        )
-                        Spacer(Modifier.size(4.dp))
-
-                        Text(
-                            text = "${teamData.members.size} " + stringResource(R.string.members),
-                            fontWeight = FontWeight.Light,
-                            color = Color.Gray,
-                            fontSize = 10.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.Center
+//                    ) {
+//                        Icon(
+//                            modifier = Modifier.size(15.dp),
+//                            imageVector = Icons.Default.People,
+//                            contentDescription = "Edit",
+//                            tint = Color.Gray
+//                        )
+//                        Spacer(Modifier.size(4.dp))
+//
+//                        Text(
+//                            text = "${teamData.members.size} " + stringResource(R.string.members),
+//                            fontWeight = FontWeight.Light,
+//                            color = Color.Gray,
+//                            fontSize = 10.sp,
+//                            maxLines = 1,
+//                            overflow = TextOverflow.Ellipsis
+//                        )
+//                    }
+               }
 
                 Spacer(modifier = Modifier.size(6.dp))
 
@@ -215,13 +217,15 @@ fun TeamItemColumn(
             }
         }
 
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-            modifier = Modifier.size(25.dp),
-            contentDescription = "Click",
-            tint = MaterialTheme.colorScheme.onSurface
-        )
+        IconButton(onClick={}) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                modifier = Modifier.size(20.dp),
+                contentDescription = "Click",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
 
         Spacer(modifier = Modifier.size(16.dp))
-    }
-}
+    }}
+

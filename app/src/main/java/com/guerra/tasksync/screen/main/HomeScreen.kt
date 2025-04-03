@@ -1,7 +1,7 @@
 package com.guerra.tasksync.screen.main
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,24 +10,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,89 +56,114 @@ fun HomeScreen(
     teamsData: List<Team>?
 ) {
 
-    BackHandler(enabled = true){}
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    BackHandler(enabled = true) {}
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
-        ) {
-
-            if (userData.fullName != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = stringResource(R.string.welcome) + ",",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.size(4.dp))
-
-                    Text(
-                        text = "${userData.fullName.split(" ").firstOrNull()}!",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorResource(R.color.blue)
-                    )
-                }
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.welcome) + ",",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.size(4.dp))
-
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(14.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        trackColor = colorResource(R.color.blue)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = stringResource(R.string.my_teams),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            LazyRow(
-                modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /*TODO AI Chat*/ },
+                shape = RoundedCornerShape(100.dp),
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
-                if (teamsData != null) {
-                    items(teamsData.size) { index ->
-                        TeamItemRow(
-                            teamData = teamsData[index],
-                            onClick = { /*TODO*/ },
-                            index = index
+                Image(
+                    painter = painterResource(R.drawable.ic_ai_white),
+                    contentDescription = "AI Chat",
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackBarHostState,
+                modifier = Modifier.imePadding()
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+
+                if (userData.fullName != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = stringResource(R.string.welcome) + ",",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
                         )
+
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        Text(
+                            text = "${userData.fullName.split(" ").firstOrNull()}!",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(R.color.blue)
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.welcome) + ",",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(14.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            trackColor = colorResource(R.color.blue)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(16.dp))
+
+                Text(
+                    modifier = Modifier.padding(start = 16.dp),
+                    text = stringResource(R.string.my_teams),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+
+                Spacer(modifier = Modifier.size(16.dp))
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (teamsData != null) {
+                        items(teamsData.size) { index ->
+                            TeamItemRow(
+                                teamData = teamsData[index],
+                                onClick = { /*TODO*/ },
+                                index = index
+                            )
+                        }
                     }
                 }
             }

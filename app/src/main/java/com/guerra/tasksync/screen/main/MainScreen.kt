@@ -5,13 +5,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -23,6 +25,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -33,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -76,7 +80,6 @@ data class BottomNavigationItem(
 
 @Composable
 fun MainScreen(
-    appTheme: String,
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient,
     coroutineScope: CoroutineScope,
@@ -88,10 +91,19 @@ fun MainScreen(
     val bottomNavController = rememberNavController()
     var screenName by remember { mutableStateOf("") }
 
+    val showThemeDialog = remember { mutableStateOf(false) }
+
     val context = LocalContext.current
 
-    val isDarkTheme = if(appTheme == "dark") true else if(appTheme == "light") false else isSystemInDarkTheme()
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    fun getAppTheme(): String {
+        return prefs.getString("theme_code", "device") ?: "device"
+    }
+
+    var appTheme by remember { mutableStateOf(getAppTheme()) }
+
+    val isDarkTheme =
+        if (appTheme == "dark") true else if (appTheme == "light") false else isSystemInDarkTheme()
 
     val userData by authViewModel.userData.collectAsStateWithLifecycle()
     val teamsData by teamsViewModel.teamsData.collectAsStateWithLifecycle()
@@ -104,12 +116,33 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(userData){
-        if(userData != null) onLoaded()
+    LaunchedEffect(userData) {
+        if (userData != null) onLoaded()
+    }
+
+    if (showThemeDialog.value) {
+        ThemeSelectionDialog(
+            currentTheme = appTheme,
+            onThemeSelected = { selected ->
+                prefs.edit().putString("theme_code", selected).apply()
+                appTheme = selected
+                showThemeDialog.value = false
+                (context as? Activity)?.recreate()
+            },
+            onDismiss = {
+                showThemeDialog.value = false
+            }
+        )
     }
 
     Scaffold(
-        topBar = { TopBar(screenName) },
+        topBar = {
+            TopBar(
+                screenName,
+                onThemeClick = { showThemeDialog.value = true },
+                isDarkTheme = isDarkTheme,
+                onChatClick = {})
+        },
         bottomBar = { BottomNavigationBar(isDarkTheme, bottomNavController) }
     ) { padding ->
         NavHost(
@@ -182,7 +215,13 @@ fun MainScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(screenName: String) {
+fun TopBar(
+    screenName: String,
+    onChatClick: () -> Unit,
+    onThemeClick: () -> Unit,
+    isDarkTheme: Boolean
+) {
+
     TopAppBar(
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -198,6 +237,44 @@ fun TopBar(screenName: String) {
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
+        },
+        actions = {
+            when (screenName) {
+                stringResource(R.string.teams) -> {
+                    IconButton(onClick = onChatClick) {
+                        BadgedBox(
+                            badge = {
+                                Badge(
+                                    containerColor = Color.Red
+                                )
+                            }
+                        ) {
+
+                            Icon(
+                                imageVector = Icons.Default.ChatBubble,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(20.dp),
+                                contentDescription = "Chat"
+                            )
+                        }
+
+
+                    }
+                }
+
+                stringResource(R.string.settings) -> {
+                    IconButton(onClick = onThemeClick) {
+                        Icon(
+                            imageVector = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(20.dp),
+                            contentDescription = "Theme"
+                        )
+                    }
+                }
+
+                else -> {}
+            }
         }
     )
 }
@@ -304,18 +381,18 @@ fun BottomNavigationBar(isDarkTheme: Boolean, bottomNavController: NavHostContro
     }
 }
 
-private fun clearSharedPreferences(prefs: SharedPreferences){
+private fun clearSharedPreferences(prefs: SharedPreferences) {
     with(prefs.edit()) {
         clear()
         commit()
     }
 }
 
-private fun resetThemeToDeviceDefault(){
+private fun resetThemeToDeviceDefault() {
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 }
 
-private fun resetLanguageToDeviceDefault(context: Context){
+private fun resetLanguageToDeviceDefault(context: Context) {
     val defaultLocale = Resources.getSystem().configuration.locales[0]
     val config = context.resources.configuration
     config.setLocale(defaultLocale)

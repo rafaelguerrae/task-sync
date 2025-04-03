@@ -14,7 +14,7 @@ class TeamRepository @Inject constructor (
                 id = "1",
                 name = "Rafael Guerra's Team",
                 description = "Description",
-                profilePictureUrl = "https://media.licdn.com/dms/image/v2/D4D03AQEihpv9eu9ZUQ/profile-displayphoto-shrink_800_800/B4DZUHK61pGcAc-/0/1739582058282?e=1747872000&v=beta&t=N-gA_yCLKA_EnB3sKkhHg7hqvutZxFiQxtsV_rSxnVg",
+                profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/r.png",
                 members = listOf(
                     User(), User(), User(), User()
                 ),
@@ -33,7 +33,7 @@ class TeamRepository @Inject constructor (
                         id = "1",
                         name = "Rafael Guerra's Team",
                         description = "Description",
-                        profilePictureUrl = "https://media.licdn.com/dms/image/v2/D4D03AQEihpv9eu9ZUQ/profile-displayphoto-shrink_800_800/B4DZUHK61pGcAc-/0/1739582058282?e=1747872000&v=beta&t=N-gA_yCLKA_EnB3sKkhHg7hqvutZxFiQxtsV_rSxnVg",
+                        profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/r.png",
                         members = listOf(
                             User(), User(), User(), User()
                         ),
@@ -43,7 +43,7 @@ class TeamRepository @Inject constructor (
                         id = "2",
                         name = "Snoopy's Team",
                         description = "Description",
-                        profilePictureUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR42_LOIslxyAWZU-CpORBw-WocqD5p9_ZZ_A&s",
+                        profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/s.png",
                         members = listOf(
 
                             User(), User(), User(), User(),
@@ -55,7 +55,7 @@ class TeamRepository @Inject constructor (
                         id = "3",
                         name = "ChatGPT's Team",
                         description = "Description",
-                        profilePictureUrl = "https://corebase.com.br/wp-content/uploads/2023/05/64063dbcad97bd421b437096_chatgpt.jpg",
+                        profilePictureUrl = "https://raw.githubusercontent.com/Ecosynergy/EcoSynergy-App/refs/heads/main/app/src/main/res/drawable/c.png",
                         members = listOf(
                             User(), User(), User(), User(),
                             User(), User(), User(), User(),

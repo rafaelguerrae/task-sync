@@ -8,6 +8,12 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+tasks.withType<Test> {
+    jvmArgs(
+        "-XX:+EnableDynamicAgentLoading"
+    )
+}
+
 android {
     namespace = "com.guerra.tasksync"
     compileSdk = 35
@@ -90,11 +96,15 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
+    testImplementation (libs.kotlinx.coroutines.test)
+
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
